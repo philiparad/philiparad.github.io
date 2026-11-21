@@ -25,6 +25,18 @@ export function parseVariationPoints(input,kind){
 export function variationKey(left,right){
     return (left===null?'-inf':String(left))+'|'+(right===null?'+inf':String(right));
 }
+export function parsePointValues(input=''){
+    if(!validText(input,1500))throw Error('Invalid point values.');
+    const values={};
+    for(const pair of String(input||'').split(/[;\n]+/).map(x=>x.trim()).filter(Boolean)){
+        const i=pair.indexOf('=');
+        if(i<=0||i===pair.length-1)throw Error('Use x=value; for example: 1=2; 4=5/4.');
+        const x=coordinate(pair.slice(0,i)),label=pair.slice(i+1).trim();
+        if(!label||label.length>60)throw Error('Invalid function value label.');
+        values[String(x)]=label;
+    }
+    return values;
+}
 export function createVariationSpec(config={}){
     const points=[];
     for(const [field,kind] of [['zeros','zero'],['undefinedPoints','undefined'],
@@ -38,7 +50,7 @@ export function createVariationSpec(config={}){
         secondSource:String(config.secondSource||'').trim(),
         points,domain:{min:bound(config.domainMin),max:bound(config.domainMax),
             minClosed:config.minClosed===true,maxClosed:config.maxClosed===true},
-        samples:{},autoSigns:config.autoSigns===true,
+        samples:{},pointValues:parsePointValues(config.pointValueText||''),autoSigns:config.autoSigns===true,
         reveal:{signs:config.reveal?.signs!==false,arrows:config.reveal?.arrows!==false,
             conclusions:config.reveal?.conclusions!==false},
         assumeContinuous:config.assumeContinuous===true};
@@ -62,6 +74,12 @@ export function validateVariationSpec(spec){
         throw Error('Invalid variation-table domain.');
     if(!spec.reveal||!['signs','arrows','conclusions'].every(k=>typeof spec.reveal[k]==='boolean'))
         throw Error('Invalid reveal settings.');
+    if(spec.pointValues!==undefined){
+        if(!spec.pointValues||typeof spec.pointValues!=='object'||Array.isArray(spec.pointValues)||
+            Object.keys(spec.pointValues).length>MAX_POINTS+2||
+            Object.entries(spec.pointValues).some(([key,value])=>
+                !finite(Number(key))||!validText(value,60)))throw Error('Invalid point values.');
+    }
     if(!spec.samples||typeof spec.samples!=='object'||Array.isArray(spec.samples)||
         Object.keys(spec.samples).length>MAX_POINTS+1)throw Error('Invalid interval answers.');
     for(const [key,s] of Object.entries(spec.samples)){
@@ -107,7 +125,7 @@ function signOf(n){return !Number.isFinite(n)?'?':n>1e-10?'+':n< -1e-10?'-':'?';
 export function variationIntervals(spec,points=variationBreakpoints(spec)){
     const nodes=[null,...points.map(p=>p.x),null];
     let first=null,second=null;
-    if(spec.autoSigns){
+    if(spec.autoSigns||spec.session==='check'){
         if(spec.derivativeSource)first=compileExpression(spec.derivativeSource,'x');
         if(spec.secondSource)second=compileExpression(spec.secondSource,'x');
     }
@@ -118,9 +136,17 @@ export function variationIntervals(spec,points=variationBreakpoints(spec)){
             throw Error('A test point must be strictly inside its interval.');
         const active=variationDomainContains(spec,x);
         const numeric=(fn)=>{try{return fn?signOf(fn(x)):'?';}catch{return '?';}};
+        const numericSign=active?numeric(first):'?',numericSecondSign=active?numeric(second):'?';
+        const chosen=(key,calculated)=>saved[key]||(spec.session==='student'?'?':
+            spec.autoSigns?calculated:'?');
+        const verify=(answer,calculated)=>spec.session==='check'&&answer&&['+','-'].includes(calculated)?
+            answer===calculated:null;
         return {key,left,right,x,active,
-            sign:active?(saved.sign||numeric(first)):'?',secondSign:active?(saved.secondSign||numeric(second)):'?',
-            numericSign:active?numeric(first):'?',numericSecondSign:active?numeric(second):'?'};
+            sign:active?chosen('sign',numericSign):'?',
+            secondSign:active?chosen('secondSign',numericSecondSign):'?',
+            numericSign,numericSecondSign,
+            firstVerified:verify(saved.sign,numericSign),
+            secondVerified:verify(saved.secondSign,numericSecondSign)};
     });
 }
 export function analyzeVariation(spec){
@@ -131,17 +157,29 @@ export function analyzeVariation(spec){
         const defined=variationDomainContains(spec,p.x),left=intervals[i],right=intervals[i+1];
         const pair=left.active&&right.active?[left.sign,right.sign]:['?','?'];
         const secondPair=left.active&&right.active?[left.secondSign,right.secondSign]:['?','?'];
-        let extremum=null,inflection=false;
+        let extremum=null,inflection=false,oneSided=false;
         if(defined&&p.kinds.some(k=>k==='zero'||k==='derivativeUndefined')){
             if(pair[0]==='-'&&pair[1]==='+')extremum='min';
             else if(pair[0]==='+'&&pair[1]==='-')extremum='max';
+        }
+        if(defined&&!extremum&&p.kinds.includes('domainBoundary')){
+            if(p.x===spec.domain.min&&spec.domain.minClosed&&right.active){
+                if(right.sign==='+')extremum='min';
+                else if(right.sign==='-')extremum='max';
+                oneSided=Boolean(extremum);
+            }else if(p.x===spec.domain.max&&spec.domain.maxClosed&&left.active){
+                if(left.sign==='+')extremum='max';
+                else if(left.sign==='-')extremum='min';
+                oneSided=Boolean(extremum);
+            }
         }
         if(defined&&spec.assumeContinuous&&p.kinds.some(k=>k==='secondZero'||k==='secondUndefined'))
             inflection=secondPair[0]==='+'&&secondPair[1]==='-'||
                 secondPair[0]==='-'&&secondPair[1]==='+';
         let value=null;
         if(defined&&fn){try{const v=fn(p.x);if(Number.isFinite(v))value=v;}catch{}}
-        return {...p,defined,extremum,inflection,value};
+        return {...p,defined,extremum,inflection,value,oneSided,
+            valueLabel:spec.pointValues?.[String(p.x)]??null};
     });
     return {points:results,intervals,columns:intervals.length+points.length,
         note:'Sampled signs are numerical evidence, not proof over an entire interval.'};

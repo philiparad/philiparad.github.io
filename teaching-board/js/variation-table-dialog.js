@@ -37,6 +37,7 @@ export function variationDialog(existing=null){
     grid.append(control('סוג הטבלה',mode),control('אופן הצגה',session));
     for(const [id,label,value] of [
         ['functionSource','f(x)',existing?.functionSource||''],
+        ['pointValueText','ערכי פונקציה בנקודות (x=value; ...)',Object.entries(existing?.pointValues||{}).map(([x,v])=>x+'='+v).join('; ')],
         ['derivativeSource',"f'(x)",existing?.derivativeSource||''],
         ['secondSource',"f''(x)",existing?.secondSource||''],
         ...GROUPS.map(([id,label])=>[id,label,entries(existing,
@@ -107,7 +108,7 @@ export function variationDialog(existing=null){
                 }
                 setSign(signsCell,'sign',samples[it.key]?.sign);
                 setSign(secondCell,'secondSign',samples[it.key]?.secondSign);
-                const computed=el('td',spec.autoSigns?'f′: '+it.numericSign+' | f″: '+it.numericSecondSign:'—');
+                const computed=el('td',spec.session==='student'?'מוסתר במצב תלמיד':spec.autoSigns||spec.session==='check'?'f′: '+it.numericSign+' | f″: '+it.numericSecondSign:'—');
                 tr.append(interval,x,signsCell,secondCell,computed);body.append(tr);
             }
             table.append(body);

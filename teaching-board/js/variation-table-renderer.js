@@ -68,8 +68,13 @@ export function renderVariationTable(item,svgEl){
             if(!spec.reveal.signs)continue;
             const sign=r.key==='first'?interval.sign:r.key==='second'?interval.secondSign:null;
             if(sign!==null){
-                const color=sign==='-'?'#c44861':sign==='+'?'#4b3991':'#7c8793';
+                const verdict=r.key==='first'?interval.firstVerified:interval.secondVerified;
+                const color=verdict===false?'#c0392b':verdict===true?'#178251':
+                    sign==='-'?'#c44861':sign==='+'?'#4b3991':'#7c8793';
                 g.append(text(x,r.y+r.h/2,sign,signSize,color,{'font-weight':'bold'}));
+                if(spec.session==='check'&&verdict!==null)
+                    g.append(text(x+cell*.3,r.y+r.h*.23,verdict?'✓':'×',tiny,
+                        verdict?'#178251':'#c0392b'));
             }
         }
         const trend=rows.find(r=>r.key==='trend');
@@ -103,6 +108,7 @@ export function renderVariationTable(item,svgEl){
                 else if(p.kinds.includes('secondUndefined')&&p.defined)value='∅';
             }else if(row.key==='trend'&&p.defined){
                 if(spec.reveal.conclusions&&p.extremum)value=p.extremum==='min'?'מינימום':'מקסימום';
+                else if(spec.reveal.conclusions&&p.valueLabel)value=p.valueLabel;
                 else if(spec.reveal.conclusions&&p.value!==null)value=String(Number(p.value.toPrecision(6)));
             }else if(row.key==='concavity'&&p.defined&&spec.reveal.conclusions&&p.inflection)
                 value='פיתול';
