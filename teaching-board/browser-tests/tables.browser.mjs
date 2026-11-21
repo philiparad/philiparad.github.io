@@ -210,7 +210,10 @@ export async function checkTables(page,base,output,engine){
         await paper.screenshot({path:join(output,engine+'-table-a4.png')});
         if(engine==='chromium')await printPage.pdf({path:join(output,'table-a4.pdf'),preferCSSPageSize:true,printBackground:true});
     }finally{await printPage.close();}
-    await page.setViewportSize({width:320,height:720});await command.click();
+    await page.setViewportSize({width:320,height:720});
+    const toolStrip=await page.locator('.command-deck .tools').boundingBox();
+    assert(toolStrip.width>=280,'The mobile drawing toolbar needs room to scroll and receive taps.');
+    await command.click();
     assert.equal(await dialog.getByLabel('Columns',{exact:true}).inputValue(),'4');
     const mobile=await dialog.boundingBox();assert(mobile.x>=0&&mobile.x+mobile.width<=321);
     await columns.fill('12');await rows.fill('9');await button('Insert').click();
