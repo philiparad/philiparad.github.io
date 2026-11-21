@@ -1,4 +1,5 @@
 import {validateTableItem} from './table-model.js?v=20261121-tables';
+import {validateVariationSpec} from './variation-table-model.js?v=20261121-tables';
 import { backgroundOptions } from './background-options.js?v=20261121-tables';
 import {normalizeGraphLinks} from './graph-links.js?v=20261121-tables';
 import {validateRuns,validateParagraphs} from './rich-text.js?v=20261121-tables';
@@ -9,7 +10,7 @@ import { SHAPES } from './shapes.js?v=20261121-tables';
 import { LINE_STYLES } from './line-style.js?v=20261121-tables';
 import { validCrop } from './crop-editor.js?v=20261121-tables';
 export const SCHEMA_VERSION = 1;
-export const ITEM_TYPES = new Set(['shape','curve', 'arc', 'path', 'line', 'arrow', 'rectangle', 'ellipse', 'triangle', 'polygon', 'text', 'note', 'equation', 'graph', 'image', 'table']);
+export const ITEM_TYPES = new Set(['shape','curve', 'arc', 'path', 'line', 'arrow', 'rectangle', 'ellipse', 'triangle', 'polygon', 'text', 'note', 'equation', 'graph', 'image', 'table', 'variationTable']);
 export function createBoard(title = 'Untitled lesson') {
   const now = new Date().toISOString();
   return { schemaVersion: SCHEMA_VERSION, id: crypto.randomUUID(), title: title.trim() || 'Untitled lesson', folder: '', createdAt: now, updatedAt: now, revision: 0, deleted: false, viewport: { x: 0, y: 0, zoom: 1 }, background: 'grid', items: [] };
@@ -39,6 +40,7 @@ export function checkBoard(value) {
       if(!item.links.start&&!item.links.end||item.links.start&&item.links.start===item.links.end)throw new Error('Invalid connector targets.');
     }
     if(item.type==='table')validateTableItem(item);
+    if(item.type==='variationTable')validateVariationSpec(item.spec);
     if(item.type==='shape'&&!SHAPES.has(item.shape))throw new Error('Unknown shape preset.');
     if (![item.x, item.y].every(n => Number.isFinite(n) && Math.abs(n) < 1e7)) throw new Error('Invalid object position.');
     for (const key of ['w', 'h', 'lineWidth', 'fontSize']) if (item[key] !== undefined && (!Number.isFinite(item[key]) || item[key] <= 0 || item[key] > 100000)) throw new Error('Invalid object size.');

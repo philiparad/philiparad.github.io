@@ -1,4 +1,5 @@
 import {renderTable} from './table-renderer.js?v=20261121-tables';
+import {renderVariationTable} from './variation-table-renderer.js?v=20261121-tables';
 import {backgroundOrder} from './background-lock.js?v=20261121-tables';
 import {imageCorners,imageSVGTransform} from './image-geometry.js?v=20261121-tables';
 import { backgroundOptions } from './background-options.js?v=20261121-tables';
@@ -17,6 +18,7 @@ export function bounds(item){const w=item.w||1,h=textObjectHeight(item),a=(item.
 export function union(items){if(!items.length)return {x:0,y:0,w:1000,h:700};const b=items.map(bounds),x=Math.min(...b.map(i=>i.x)),y=Math.min(...b.map(i=>i.y));return {x,y,w:Math.max(...b.map(i=>i.x+i.w))-x,h:Math.max(...b.map(i=>i.y+i.h))-y};}
 export function drawItem(item){const w=item.w||1,h=textObjectHeight(item);const g=svgEl('g',{'data-id':item.id,transform:item.type==='image'?imageSVGTransform(item):`translate(${item.x} ${item.y}) rotate(${item.rotation||0} ${w/2} ${h/2})`,opacity:item.opacity??1});
  if(item.type==='table'){g.append(renderTable(item,svgEl));return g;}
+ if(item.type==='variationTable'){g.append(renderVariationTable(item,svgEl));return g;}
  if(item.type==='path'&&item.pressures?.length===item.points?.length&&item.points.length&&(item.lineStyle||'solid')==='solid'){g.append(svgEl('path',{d:pressurePathD(item.points,item.pressures,item.lineWidth||2),fill:item.stroke||'#203954','fill-opacity':item.strokeOpacity??1,'fill-rule':'nonzero',stroke:'none','data-pressure-ink':'true'}));return g;}
  const style={stroke:item.stroke||'#203954','stroke-width':item.lineWidth||2,'stroke-opacity':item.strokeOpacity??1,fill:item.fill||'none','fill-opacity':item.fillOpacity??1,'stroke-linecap':'round','stroke-linejoin':'round'};let shape;
  if(item.type==='shape'){g.append(drawPreset(item));return g;}

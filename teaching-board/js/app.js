@@ -31,6 +31,10 @@ function thumbnail(summary){
    const xs=Array.from({length:item.cols+1},(_,i)=>i*w/item.cols);
    const ys=Array.from({length:item.rows+1},(_,i)=>i*h/item.rows);
    group.append(svgEl('path',{...outline,d:gridPath(xs,ys)}));
+  }else if(item.type==='variationTable'){
+   group.append(svgEl('rect',{width:w,height:h,fill:'#ffffff',stroke:'#57758b','stroke-width':2}));
+   for(let j=1;j<4;j++)group.append(svgEl('line',{x1:0,y1:h*j/4,x2:w,y2:h*j/4,stroke:'#607e9d','stroke-width':1}));
+   group.append(svgEl('line',{x1:w*.22,y1:0,x2:w*.22,y2:h,stroke:'#607e9d','stroke-width':1}));
   }else if(item.type==='ellipse'){
    group.append(svgEl('ellipse',{cx:w/2,cy:h/2,rx:w/2,ry:h/2,...outline}));
   }else if(item.type==='triangle'||item.type==='polygon'){
