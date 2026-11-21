@@ -121,5 +121,16 @@ export function renderVariationTable(item,svgEl){
         '#334459',c===0?2:1.3));
     for(const r of rows.slice(1))g.append(line(0,r.y,item.w,r.y,'#334459',1.6));
     g.append(rect(0,0,item.w,item.h,'none','#253747',2.1));
+    // Transparent interval overlays are hit targets for Shift+click graph markers.
+    if(spec.graphId)for(let i=0;i<a.intervals.length;i++){
+        const it=a.intervals[i];
+        if(!it.active)continue;
+        const zone=rect(first+i*2*cell,0,cell,item.h,'transparent');
+        zone.setAttribute('data-variation-interval',it.key);
+        zone.setAttribute('data-variation-test',String(it.x));
+        zone.setAttribute('aria-label','x = '+it.x+'; Shift+click to mark linked graph');
+        zone.setAttribute('pointer-events','all');
+        g.append(zone);
+    }
     return g;
 }

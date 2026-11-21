@@ -53,7 +53,8 @@ export function createVariationSpec(config={}){
         samples:{},pointValues:parsePointValues(config.pointValueText||''),autoSigns:config.autoSigns===true,
         reveal:{signs:config.reveal?.signs!==false,arrows:config.reveal?.arrows!==false,
             conclusions:config.reveal?.conclusions!==false},
-        assumeContinuous:config.assumeContinuous===true};
+        assumeContinuous:config.assumeContinuous===true,
+        ...(config.graphId?{graphId:String(config.graphId)}:{})};
     validateVariationSpec(spec);return spec;
 }
 export function validateVariationSpec(spec){

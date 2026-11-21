@@ -24,7 +24,7 @@ function input(value=''){
     const t=el('input');t.type='text';t.value=value;t.dir='ltr';t.autocomplete='off';return t;
 }
 // All source strings and point lists are textContent / input.value; never innerHTML.
-export function variationDialog(existing=null){
+export function variationDialog(existing=null,graphs=[]){
     const d=el('dialog',null,'form-dialog variation-dialog'),form=el('form'),
         heading=el('h2',existing?'עריכת טבלת חקירת פונקציה':'יצירת טבלת חקירת פונקציה'),
         note=el('p','הכניסו את הנקודות החשובות. המערכת תסדר אותן ותציע ערך בדיקה בכל מרווח.','muted'),
@@ -34,7 +34,10 @@ export function variationDialog(existing=null){
         ['combined','טבלה משולבת']],existing?.mode||'extrema');
     const session=select([['teacher','מצב מורה'],['student','מצב תלמיד'],['check','מצב בדיקה']],
         existing?.session||'teacher');
-    grid.append(control('סוג הטבלה',mode),control('אופן הצגה',session));
+    const graphSelect=select([['','ללא קישור'],...graphs.map(g=>[
+        g.id,'גרף: '+(g.title||g.id.slice(0,8))])],existing?.graphId||'');
+    grid.append(control('סוג הטבלה',mode),control('אופן הצגה',session),
+        control('קישור לגרף בלוח (אופציונלי)',graphSelect));
     for(const [id,label,value] of [
         ['functionSource','f(x)',existing?.functionSource||''],
         ['pointValueText','ערכי פונקציה בנקודות (x=value; ...)',Object.entries(existing?.pointValues||{}).map(([x,v])=>x+'='+v).join('; ')],
@@ -66,11 +69,11 @@ export function variationDialog(existing=null){
     const save=el('button',existing?'עדכן טבלה':'הוסף טבלה','primary');save.type='submit';
     actions.append(previewButton,cancel,save);
     form.append(heading,note,grid,flags,preview,el('p',
-        'סימן שמחושב בערך בדיקה הוא כלי עזר; כדי לקבוע סימן על מרווח שלם יש לנמק מתמטית.','muted'),error,actions);
+        'סימן שמחושב בערך בדיקה הוא כלי עזר; כדי לקבוע סימן על מרווח שלם יש לנמק מתמטית. Shift+לחיצה על עמודת ביניים בלוח תסמן את x בגרף המקושר.','muted'),error,actions);
     d.append(form);d.dir='rtl';document.body.append(d);
     const samples=structuredClone(existing?.samples||{});
     const config=()=>({
-        mode:mode.value,session:session.value,
+        mode:mode.value,session:session.value,graphId:graphSelect.value,
         ...Object.fromEntries(Object.entries(inputs).map(([id,node])=>[id,node.value])),
         minClosed:minClosed.input.checked,maxClosed:maxClosed.input.checked,
         autoSigns:auto.input.checked,assumeContinuous:continuous.input.checked,

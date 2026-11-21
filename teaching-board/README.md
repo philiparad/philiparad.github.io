@@ -658,3 +658,34 @@ new answer, or modify lesson data. Subsequent openings start from the default
 location until the user drags the window or moves it with the arrow keys again.
 The reset button fits the responsive mobile title bar and has an accessible
 label. If browser local storage is disabled, the current window still resets.
+
+
+## VARTABLE — Interactive function investigation table (#95–#99)
+
+Choose **Variation table** (grid/chart icon) beside the ordinary Table tool.
+In the Hebrew dialog choose **extrema**, **inflection**, or **combined**,
+enter x coordinates of derivative zeros, excluded domain points, and
+points where f' or f'' is undefined even though f exists. The tool sorts
+breakpoints and inserts editable intermediate test-point columns.
+Closed/open domain bounds can also be supplied.
+
+- Optionally enter f(x), f'(x), f''(x) using the existing safe mathematical
+  expression parser, e.g. 2*x^2-3*x (explicit multiplication).
+- Optional exact function-value labels use the syntax 1=2; 4=5/4.
+- Use **Build / update columns** to edit test x coordinates and first/second
+  derivative signs. Student mode never reveals automatically computed signs.
+  Check mode evaluates supplied derivative expressions at sample points and
+  indicates correct/incorrect manually selected signs.
+- The eye icon progressively reveals signs, arrows and conclusions on the
+  selected table, then hides all stages. Double-click or right-click to edit.
+- Optionally choose an existing graph to link. Shift+click an intermediate
+  interval column to place the x marker on that graph and any graph-linked
+  partners. Context menu provides an alternative.
+- Items support normal canvas transforms, cloning, history, editable backups
+  and SVG/PNG/PDF export; source stays in version-one board format.
+
+**Mathematical limitation:** Numerical sampling is not a proof of the sign
+throughout an interval. Interior extrema require the appropriate sign change
+at a defined point; an included domain endpoint may have a one-sided
+extremum. Inflection requires a second-derivative sign change and an explicit
+continuity assumption. Excluded points cannot be extrema or inflection.

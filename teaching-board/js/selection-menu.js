@@ -44,6 +44,14 @@ export class SelectionMenu{
   if(items.length===1&&e.tables?.editable(items[0])&&items[0].type==='table'){
    add('Edit cell',()=>e.editSelected());add('Table options',()=>e.tables.openOptions());sep();
   }
+  if(items.length===1&&items[0].type==='variationTable'){
+   add('Edit variation table',()=>e.editSelected(),editable);
+   const spot=event.target.closest?.('[data-variation-interval]');
+   if(spot)add('Mark test x on linked graph',
+      ()=>e.linkVariationInterval(items[0],Number(spot.getAttribute('data-variation-test'))),
+      editable&&Boolean(items[0].spec.graphId));
+   add('Reveal next stage',()=>e.revealVariation(),editable);sep();
+  }
   add('Duplicate',()=>e.duplicate(),has);add(items.some(i=>e.isBackgroundLocked(i))?'Unlock':'Lock to Background',()=>e.lockSelectionToBackground(),editable);sep();
   add('Cut',()=>cutSelection(e),editable);add('Copy',()=>copySelection(e),has);add('Paste',()=>pasteSelection(e));sep();
   add('Group',()=>e.groupSelection(),editable&&items.length>1);add('Ungroup',()=>e.ungroupSelection(),editable&&items.some(i=>i.groupId));sep();
