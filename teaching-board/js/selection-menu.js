@@ -1,7 +1,8 @@
-import {el,btn,notify} from './ui.js?v=20261120-perf017';
-import {expandGroups} from './groups.js?v=20261120-perf017';
-import {BOARD_CLIPBOARD} from './clipboard.js?v=20261120-perf017';
-import {validateBoard} from './model.js?v=20261120-perf017';
+import {cellAt} from './table-model.js?v=20261121-tables';
+import {el,btn,notify} from './ui.js?v=20261121-tables';
+import {expandGroups} from './groups.js?v=20261121-tables';
+import {BOARD_CLIPBOARD} from './clipboard.js?v=20261121-tables';
+import {validateBoard} from './model.js?v=20261121-tables';
 const PREFIX='teaching-board-selection:';
 export function selectionItems(e){return e.board.items.filter(i=>e.selected.has(i.id));}
 export async function copySelection(e){
@@ -35,10 +36,14 @@ export class SelectionMenu{
  }
  open(event){
   const e=this.e;if(e.inlineText||e.drag)return;event.preventDefault();
-  const id=event.target.closest?.('[data-id]')?.getAttribute('data-id');if(id&&!e.selected.has(id)){e.setTool('select');e.selected=expandGroups(e.board.items,new Set([id]));e.paint();}
+  const id=event.target.closest?.('[data-id]')?.getAttribute('data-id');
+  const table=e.tables?.item(id);if(table)e.tables.remember(table,cellAt(table,e.point(event)));if(id&&!e.selected.has(id)){e.setTool('select');e.selected=expandGroups(e.board.items,new Set([id]));e.paint();}
   const items=selectionItems(e),has=items.length>0,editable=has&&items.every(i=>!e.isLocked(i));this.root.replaceChildren();
   const add=(name,fn,enabled=true)=>{const b=btn(name,()=>{this.close();e.action(fn);});b.setAttribute('role','menuitem');b.disabled=!enabled;this.root.append(b);};
   const sep=()=>this.root.append(el('hr'));
+  if(items.length===1&&e.tables?.editable(items[0])&&items[0].type==='table'){
+   add('Edit cell',()=>e.editSelected());add('Table options',()=>e.tables.openOptions());sep();
+  }
   add('Duplicate',()=>e.duplicate(),has);add(items.some(i=>e.isBackgroundLocked(i))?'Unlock':'Lock to Background',()=>e.lockSelectionToBackground(),editable);sep();
   add('Cut',()=>cutSelection(e),editable);add('Copy',()=>copySelection(e),has);add('Paste',()=>pasteSelection(e));sep();
   add('Group',()=>e.groupSelection(),editable&&items.length>1);add('Ungroup',()=>e.ungroupSelection(),editable&&items.some(i=>i.groupId));sep();

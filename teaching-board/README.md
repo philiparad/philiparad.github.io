@@ -12,6 +12,7 @@ A personal teaching whiteboard built with HTML, CSS and JavaScript. Stage 2 adds
 - Single/multiple selection, marquee, move, resize, rotation, color, fill, opacity, line width, lock, layers, copy/paste and keyboard nudge.
 - Bounded undo/redo for document edits.
 - Text and sticky notes, including Hebrew/RTL text.
+- Editable tables with a 10 × 8 picker, custom dimensions, and Hebrew/English text. Double-click a cell to type. Tab saves and moves forward, Shift+Tab moves back, and Ctrl/⌘+Enter finishes. Table options provides row and column changes, header and cell formatting, and spreadsheet paste. Tables are included in backups, snippets and exports.
 - Editable LaTeX equations using MathJax.
 - Editable function graphs using JSXGraph and a restricted expression parser (no eval).
 - PNG/JPEG/WebP/GIF image import; PDF page import with locked page backgrounds.

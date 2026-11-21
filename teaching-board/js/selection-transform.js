@@ -1,5 +1,6 @@
-import {svgEl,union,textObjectHeight} from './scene.js?v=20261120-perf017';
-import {stretchImage} from './image-geometry.js?v=20261120-perf017';
+import {scaleTable} from './table-model.js?v=20261121-tables';
+import {svgEl,union,textObjectHeight} from './scene.js?v=20261121-tables';
+import {stretchImage} from './image-geometry.js?v=20261121-tables';
 export const resizeHandles={nw:[0,0],n:[.5,0],ne:[1,0],e:[1,.5],se:[1,1],s:[.5,1],sw:[0,1],w:[0,.5]};
 export function drawResizeHandles(scene,items,zoom){
  const b=union(items),pad=8/zoom,size=10/zoom;
@@ -24,6 +25,13 @@ export function resizeItems(board,d,p,shift=false){
   const item=board.items.find(i=>i.id===old.id);if(!item)continue;
   const cx=ax+(old.x+old.w/2-ax)*sx,cy=ay+(old.y+old.h/2-ay)*sy;
   if(old.type==='image'){stretchImage(item,old,sx,sy,cx,cy);continue;}
+  if(old.type==='table'){
+   scaleTable(item,old,sx,sy);
+   // Keep the opposite outer edge fixed when a cell reaches its minimum size.
+   item.x=ax+(old.x-ax)*sx+(u===0?old.w*sx-item.w:0);
+   item.y=ay+(old.y-ay)*sy+(v===0?old.h*sy-item.h:0);
+   continue;
+  }
   item.w=old.w*sx;item.h=old.h*sy;item.x=cx-item.w/2;item.y=cy-item.h/2;
   if(old.points)item.points=old.points.map(([x,y])=>[x*sx,y*sy]);
   if(old.rawPoints)item.rawPoints=old.rawPoints.map(([x,y])=>[x*sx,y*sy]);

@@ -1,4 +1,4 @@
-import {textObjectHeight} from './scene.js?v=20261120-perf017';
+import {textObjectHeight} from './scene.js?v=20261121-tables';
 
 /** Precise hit testing for the full visible text box, including empty glyph gaps. */
 export function pointInTextBox(item,point){

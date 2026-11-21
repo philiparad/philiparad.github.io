@@ -1,4 +1,4 @@
-import {restoreLogicalSelection} from './text-selection.js?v=20261120-perf017';
+import {restoreLogicalSelection} from './text-selection.js?v=20261121-tables';
 /**
  * Formatting chosen at a collapsed caret. A pending mark affects only the
  * next inserted text; subsequent native input continues in its styled span.

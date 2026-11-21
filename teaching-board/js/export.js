@@ -1,12 +1,12 @@
-import {exportFilename} from './export-filename.js?v=20261120-perf017';
-import { printPageIndexes } from './print-page-selection.js?v=20261120-perf017';
-import { resolveExport, exportPadding, rasterSize } from './export-scope.js?v=20261120-perf017';
-import { pageSVG } from './pages.js?v=20261120-perf017';
-import { sceneSVG } from './scene.js?v=20261120-perf017';
-import { loadImage } from './media.js?v=20261120-perf017';
-import { serializeBackup } from './model.js?v=20261120-perf017';
-import { download } from './ui.js?v=20261120-perf017';
-import {encodeRasterImage,printSVGDocument} from './export-raster.js?v=20261120-perf017';
+import {exportFilename} from './export-filename.js?v=20261121-tables';
+import { printPageIndexes } from './print-page-selection.js?v=20261121-tables';
+import { resolveExport, exportPadding, rasterSize } from './export-scope.js?v=20261121-tables';
+import { pageSVG } from './pages.js?v=20261121-tables';
+import { sceneSVG } from './scene.js?v=20261121-tables';
+import { loadImage } from './media.js?v=20261121-tables';
+import { serializeBackup } from './model.js?v=20261121-tables';
+import { download } from './ui.js?v=20261121-tables';
+import {encodeRasterImage,printSVGDocument} from './export-raster.js?v=20261121-tables';
 export function backup(board){download(new Blob([serializeBackup(board)],{type:'application/json'}),exportFilename()+'.json');}
 export async function exportBoard(board,format,options={scope:'all'}){
  if(format==='json'){backup(board);return;}

@@ -22,6 +22,7 @@ export function summarizeBoard(board){
   if(item.fill&&item.fill!=='none')p.fill=item.fill;
   if(item.stroke&&item.stroke!=='none')p.stroke=item.stroke;
   if(['text','note'].includes(item.type))p.text=(item.text||'').slice(0,48);
+  if(item.type==='table'){p.cols=Math.min(item.cols,10);p.rows=Math.min(item.rows,8);p.stroke=item.tableStyle.borderColor;p.fill=item.tableStyle.fill;}
   if(item.type==='shape'&&item.shape)p.shape=String(item.shape).slice(0,32);
   if(Array.isArray(item.points)&&item.points.length){
    const limit=Math.min(item.points.length,PREVIEW_POINT_LIMIT);

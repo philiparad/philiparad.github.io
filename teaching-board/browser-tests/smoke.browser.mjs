@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { chromium, firefox, webkit } from 'playwright';
+import { checkTables } from './tables.browser.mjs';
 
 const base=process.env.TEACHING_BOARD_URL||'http://127.0.0.1:8765/teaching-board/';
 const engine=process.env.TEACHING_BOARD_BROWSER||'chromium';
@@ -4003,6 +4004,13 @@ try{
   assert.equal(child.untrustedResponse,false);
  });
 
+ await check('Word-style table insertion, editing, persistence, exports and narrow screens',async()=>{
+  const tablePage=await browser.newPage({viewport:{width:1440,height:900},locale:'he-IL'});
+  try{
+   tablePage.on('pageerror',error=>pageErrors.push(error.message));
+   await checkTables(tablePage,base,process.env.TEACHING_BOARD_VISUAL_DIR||'/tmp/teaching-board-visual-artifacts',engine);
+  }finally{await tablePage.close();}
+ });
  assert.deepEqual(pageErrors,[]);
  console.log('All '+engine+' browser smoke checks passed.');
 }finally{

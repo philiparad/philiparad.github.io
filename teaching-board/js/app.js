@@ -1,11 +1,12 @@
-import { showRecovery } from './recovery.js?v=20261120-perf017';
-import { createBoard, parseBackup } from './model.js?v=20261120-perf017';
-import { BoardRepository } from './storage.js?v=20261120-perf017';
-import { Editor } from './editor.js?v=20261120-perf017';
-import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261120-perf017';
-import { backup } from './export.js?v=20261120-perf017';
-import { svgEl } from './scene.js?v=20261120-perf017';
-import {findLessonSummaries,shownLessons,DASHBOARD_PAGE_SIZE} from './dashboard-data.js?v=20261120-perf017';
+import {gridPath} from './table-renderer.js?v=20261121-tables';
+import { showRecovery } from './recovery.js?v=20261121-tables';
+import { createBoard, parseBackup } from './model.js?v=20261121-tables';
+import { BoardRepository } from './storage.js?v=20261121-tables';
+import { Editor } from './editor.js?v=20261121-tables';
+import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261121-tables';
+import { backup } from './export.js?v=20261121-tables';
+import { svgEl } from './scene.js?v=20261121-tables';
+import {findLessonSummaries,shownLessons,DASHBOARD_PAGE_SIZE} from './dashboard-data.js?v=20261121-tables';
 
 const repository=new BoardRepository(),app=document.querySelector('#app');
 let editor=null,generation=0,viewTrash=false,folderFilter='',searchText='',sortBy='recent';
@@ -26,6 +27,10 @@ function thumbnail(summary){
     group.append(svgEl('polyline',{points:item.points.map(p=>p.join(',')).join(' '),
      fill:'none',stroke,'stroke-width':Math.max(1,Math.min(5,Math.min(w,h)*.06))}));
    }else group.append(svgEl('line',{x1:0,y1:0,x2:w,y2:h,stroke}));
+  }else if(item.type==='table'){
+   const xs=Array.from({length:item.cols+1},(_,i)=>i*w/item.cols);
+   const ys=Array.from({length:item.rows+1},(_,i)=>i*h/item.rows);
+   group.append(svgEl('path',{...outline,d:gridPath(xs,ys)}));
   }else if(item.type==='ellipse'){
    group.append(svgEl('ellipse',{cx:w/2,cy:h/2,rx:w/2,ry:h/2,...outline}));
   }else if(item.type==='triangle'||item.type==='polygon'){
@@ -142,5 +147,5 @@ async function dashboard(token){
  app.append(heading,controls,cards,pagination,footer);
 }
 async function renderRoute(){const token=++generation;try{if(editor){await editor.flush();if(token!==generation)return;editor.dispose();editor=null;}app.setAttribute('aria-busy','true');const match=location.hash.match(/^#\/board\/([a-zA-Z0-9-]+)$/);if(match){const board=await repository.get(match[1]);if(token!==generation)return;if(!board||board.deleted)throw new Error('Lesson not found. Return to Lessons using the logo.');editor=new Editor(app,board,repository);}else await dashboard(token);}catch(error){notify(error.message);if(!editor)app.replaceChildren(el('p',error.message));}finally{app.setAttribute('aria-busy','false');}}
-window.addEventListener('hashchange',renderRoute);window.addEventListener('beforeunload',e=>{if(editor?.queue.dirty || editor?.drag || editor?.inlineText){e.preventDefault();e.returnValue='';}});
+window.addEventListener('hashchange',renderRoute);window.addEventListener('beforeunload',e=>{if(editor?.queue.dirty || editor?.drag || editor?.inlineText || editor?.tables.hasDraft){e.preventDefault();e.returnValue='';}});
 renderRoute();

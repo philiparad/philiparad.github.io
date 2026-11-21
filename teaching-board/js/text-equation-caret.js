@@ -1,4 +1,4 @@
-import {captureLogicalSelection,logicalParagraphs,restoreLogicalSelection} from './text-selection.js?v=20261120-perf017';
+import {captureLogicalSelection,logicalParagraphs,restoreLogicalSelection} from './text-selection.js?v=20261121-tables';
 
 /**
  * Equations are DOM elements but occupy a single U+FFFC in the rich-text

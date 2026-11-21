@@ -1,8 +1,8 @@
-import { backgroundOptions } from './background-options.js?v=20261120-perf017';
-import { svgEl, union, bounds } from './scene.js?v=20261120-perf017';
-import { pageRect } from './pages.js?v=20261120-perf017';
-import { el, btn } from './ui.js?v=20261120-perf017';
-import { RenderCache } from './render-cache.js?v=20261120-perf017';
+import { backgroundOptions } from './background-options.js?v=20261121-tables';
+import { svgEl, union, bounds } from './scene.js?v=20261121-tables';
+import { pageRect } from './pages.js?v=20261121-tables';
+import { el, btn } from './ui.js?v=20261121-tables';
+import { RenderCache } from './render-cache.js?v=20261121-tables';
 
 export function centeredViewport(viewport, point, width, height) {
  return {zoom:viewport.zoom,x:width/2-point.x*viewport.zoom,y:height/2-point.y*viewport.zoom};
