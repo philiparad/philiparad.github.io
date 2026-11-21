@@ -521,10 +521,7 @@ export class Editor {
  }
  async insertVariation(existing=null){
   if(this.disposed||this.inlineText||this.tables?.input)throw Error('Finish editing the current object first.');
-  const graphs=this.board.items.filter(i=>i.type==='graph').map(i=>({
-   id:i.id,title:(i.series?.[0]?.source||i.source||'f(x)').slice(0,48)
-  }));
-  const spec=await variationDialog(existing?.spec||null,graphs);
+  const spec=await variationDialog(existing?.spec||null);
   if(!spec||this.disposed)return;
   const item=existing||createVariationItem(spec,this.center());
   if(existing)item.spec=structuredClone(spec);

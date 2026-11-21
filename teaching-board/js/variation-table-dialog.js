@@ -24,7 +24,7 @@ function input(value=''){
     const t=el('input');t.type='text';t.value=value;t.dir='ltr';t.autocomplete='off';return t;
 }
 // All source strings and point lists are textContent / input.value; never innerHTML.
-export function variationDialog(existing=null,graphs=[]){
+export function variationDialog(existing=null){
     const d=el('dialog',null,'form-dialog variation-dialog'),form=el('form'),
         heading=el('h2',existing?'עריכת טבלת חקירת פונקציה':'יצירת טבלת חקירת פונקציה'),
         note=el('p','הכניסו את הנקודות החשובות. המערכת תסדר אותן ותציע ערך בדיקה בכל מרווח.','muted'),
@@ -34,13 +34,9 @@ export function variationDialog(existing=null,graphs=[]){
         ['combined','טבלה משולבת']],existing?.mode||'extrema');
     const session=select([['teacher','מצב מורה'],['student','מצב תלמיד'],['check','מצב בדיקה']],
         existing?.session||'teacher');
-    const graphSelect=select([['','ללא קישור'],...graphs.map(g=>[
-        g.id,'גרף: '+(g.title||g.id.slice(0,8))])],existing?.graphId||'');
-    grid.append(control('סוג הטבלה',mode),control('מצב עבודה',session),
-        control('קישור לגרף בלוח (אופציונלי)',graphSelect));
+    grid.append(control('סוג הטבלה',mode),control('מצב עבודה',session));
     for(const [id,label,value] of [
         ['functionSource','f(x)',existing?.functionSource||''],
-        ['pointValueText','ערכי פונקציה בנקודות (x=value; ...)',Object.entries(existing?.pointValues||{}).map(([x,v])=>x+'='+v).join('; ')],
         ['derivativeSource',"f'(x)",existing?.derivativeSource||''],
         ['secondSource',"f''(x)",existing?.secondSource||''],
         ...GROUPS.map(([id,label])=>[id,label,entries(existing,
@@ -68,19 +64,22 @@ export function variationDialog(existing=null,graphs=[]){
     const cancel=el('button','ביטול');cancel.type='button';
     const save=el('button',existing?'עדכן טבלה':'הוסף טבלה','primary');save.type='submit';
     actions.append(previewButton,cancel,save);
-    form.append(heading,note,grid,flags,preview,el('p',
-        'סימן שמחושב בערך בדיקה הוא כלי עזר; כדי לקבוע סימן על מרווח שלם יש לנמק מתמטית. Shift+לחיצה על עמודת ביניים בלוח תסמן את x בגרף המקושר.','muted'),error,actions);
+    const signNote=el('p','סימן שמחושב בערך בדיקה הוא כלי עזר. כדי לקבוע סימן על מרווח שלם יש לנמק מתמטית.','muted');
+    if(existing?.graphId)signNote.append(' Shift+לחיצה על עמודת ביניים בלוח תסמן את x בגרף המקושר.');
+    form.append(heading,note,grid,flags,preview,signNote,error,actions);
     d.append(form);d.dir='rtl';document.body.append(d);
     const samples=structuredClone(existing?.samples||{});
     const config=()=>({
-        mode:mode.value,session:session.value,graphId:graphSelect.value,
+        mode:mode.value,session:session.value,graphId:existing?.graphId,
         ...Object.fromEntries(Object.entries(inputs).map(([id,node])=>[id,node.value])),
         minClosed:minClosed.input.checked,maxClosed:maxClosed.input.checked,
         autoSigns:auto.input.checked,assumeContinuous:continuous.input.checked,
         reveal:{signs:signs.input.checked,arrows:arrows.input.checked,conclusions:conclusions.input.checked}
     });
     const make=()=>{
-        const spec=createVariationSpec(config());spec.samples=structuredClone(samples);
+        const spec=createVariationSpec(config());
+        if(existing?.pointValues)spec.pointValues={...existing.pointValues};
+        spec.samples=structuredClone(samples);
         const available=new Set(analyzeVariation({...spec,samples:{}}).intervals.map(i=>i.key));
         spec.samples=Object.fromEntries(Object.entries(spec.samples).filter(([k])=>available.has(k)));
         analyzeVariation(spec);return spec;
