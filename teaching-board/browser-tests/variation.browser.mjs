@@ -46,7 +46,8 @@ export async function checkVariationTable(page,base){
     await dialog.locator('button[type="submit"]').click();
     await dialog.waitFor({state:'hidden'});
     assert.equal(await page.locator('[data-variation-table]').count(),1);
-    assert(await page.locator('[data-variation-table] text').allTextContents().then(a=>a.includes('פיתול')));
+    // The SVG layer may repaint on the next animation frame after the dialog closes.
+    await page.locator('[data-variation-table] text').filter({hasText:'פיתול'}).waitFor();
 
     const download=page.waitForEvent('download');
     await page.getByLabel('Export lesson').selectOption('json');
