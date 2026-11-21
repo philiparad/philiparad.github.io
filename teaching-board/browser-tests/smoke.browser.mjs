@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { chromium, firefox, webkit } from 'playwright';
 import { checkTables } from './tables.browser.mjs';
+import { checkVariationTable } from './variation.browser.mjs';
 
 const base=process.env.TEACHING_BOARD_URL||'http://127.0.0.1:8765/teaching-board/';
 const engine=process.env.TEACHING_BOARD_BROWSER||'chromium';
@@ -4002,6 +4003,15 @@ try{
   assert(Math.abs(child.numeric-1/3)<1e-12);
   assert.equal(child.screen,'result');
   assert.equal(child.untrustedResponse,false);
+ });
+
+ await check('Variation table: domain, extrema, inflection, edit, undo and backup',async()=>{
+  const context=await browser.newContext({viewport:{width:1440,height:900},locale:'he-IL'});
+  try{
+   const p=await context.newPage();
+   p.on('pageerror',error=>pageErrors.push(error.message));
+   await checkVariationTable(p,base);
+  }finally{await context.close();}
  });
 
  await check('Word-style table insertion, editing, persistence, exports and narrow screens',async()=>{
