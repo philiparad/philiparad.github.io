@@ -1,0 +1,56 @@
+name: Geometry JSXGraph 1.10.1 environment & real-browser smoke
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/geometry-jsxgraph-environment.yml'
+      - 'geometry-chart-qa/**'
+      - 'geometry-theorems/**'
+
+permissions:
+  contents: read
+
+jobs:
+  environment-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install JSXGraph 1.10.1
+        run: |
+          npm install --no-save --no-audit --no-fund --ignore-scripts jsxgraph@1.10.1
+          node -e "const p=require('./node_modules/jsxgraph/package.json');if(p.version!=='1.10.1')process.exit(1);console.log('Installed JSXGraph',p.version)"
+      - name: Install Playwright Chromium
+        run: |
+          python -m pip install --disable-pip-version-check playwright==1.57.0
+          python -m playwright install --with-deps chromium
+      - name: Run real JSXGraph smoke test
+        run: python geometry-chart-qa/smoke_test_real_jsxgraph.py --output geometry-chart-qa/qa-output
+      - name: Run full 140-chart GQC-010 if site has been uploaded
+        shell: bash
+        run: |
+          if [[ -f geometry-theorems/tests/browser_real_jsxgraph.py && -f geometry-theorems/index.html ]]; then
+            cd geometry-theorems
+            npm install --no-save --no-audit --no-fund --ignore-scripts jsxgraph@1.10.1
+            python tests/test_real_jsxgraph_gate.py
+            python tests/browser_real_jsxgraph.py
+          else
+            echo '::notice::GQC-010 full 420-chart gate NOT_TESTED: Geometry Theorems project not yet in repository.'
+            python -c "import json,pathlib;p=pathlib.Path('geometry-chart-qa/qa-output/full_chart_status.json');p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps({'task':'GQC-010','status':'NOT_TESTED','expected_tests':420,'executed_tests':0,'reason':'Geometry Theorems project not in repository'},indent=2)+'\n')"
+          fi
+      - name: Upload environment and real-renderer evidence
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: geometry-jsxgraph-1-10-1-results
+          path: |
+            geometry-chart-qa/qa-output/
+            geometry-theorems/tests/real_jsxgraph/
+          retention-days: 21
