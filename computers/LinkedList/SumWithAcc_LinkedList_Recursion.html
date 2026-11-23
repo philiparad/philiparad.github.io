@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>הדמיית רקורסיה — סכימה עם צובר Acc</title>
+<style>
+:root{--page-bg:#f3f6fc;--ink:#182944;--soft:#586c88;--blue:#2563eb;--blue-light:#eaf2ff;--amber:#bb7410;--green:#087e60;--green-light:#e9f8f1;--border:#d6e1f0;--inspector-width:480px}
+*{box-sizing:border-box}body{margin:0;background:var(--page-bg);font-family:Arial,"Noto Sans Hebrew",sans-serif;color:var(--ink);font-size:16px}button,select{font:inherit}
+#app{max-width:1900px;margin:auto;padding:16px 20px 24px}header{background:#fff;border:1px solid var(--border);border-radius:18px;padding:20px 24px 16px;box-shadow:0 5px 25px #18294408}h1{margin:0 0 8px;font-size:clamp(23px,2.5vw,32px);color:#173f82}h2{margin:0 0 10px;font-size:18px}h3{font-size:15px;margin:0 0 9px;color:#254c8a}.subtitle{color:var(--soft);line-height:1.6;margin:0}.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:16px}.toolbar button,.toolbar select,.mini-btn{border:1px solid #c7d5e8;background:#fff;border-radius:10px;color:#214674;padding:9px 12px;cursor:pointer;font-weight:700}.toolbar button:hover:not(:disabled),.mini-btn:hover{background:#e8f0fc}.toolbar button:disabled{opacity:.4;cursor:not-allowed}.toolbar button.primary{background:var(--blue);border-color:var(--blue);color:#fff}.toolbar button.primary:hover{background:#1c4ec3}.toolbar button[aria-pressed=true]{background:#dbeafe;border-color:#3b82f6;color:#134b9d}.toolbar .grow{flex:1}.toolbar .stepnum{direction:ltr;unicode-bidi:isolate;font-variant-numeric:tabular-nums;font-weight:700;color:#19468d;white-space:nowrap}
+.progress-shell{height:7px;background:#e6eefa;border-radius:999px;overflow:hidden;margin-top:13px}.progress{height:100%;width:0;background:linear-gradient(90deg,#2563eb,#39a8cc);transition:width .15s}
+.event-strip{border:1px solid #c9dbf8;border-right:5px solid #3b77e1;background:#f9fcff;border-radius:14px;padding:12px 18px;margin-top:14px;display:flex;gap:18px;align-items:center;justify-content:space-between}.event-strip strong{display:block;font-size:18px;margin-bottom:5px}.event-strip p{margin:0;color:#415878;line-height:1.5}.status{white-space:nowrap;border-radius:999px;padding:7px 12px;background:#e5efff;color:#164da3;font-size:13px;font-weight:700}.status.return{background:#fff0d5;color:#935b0d}.status.print{background:#e8f9f1;color:#096a4f}
+.lesson-rule{background:#fff;border:1px solid #c9d9f2;border-radius:12px;padding:12px 16px;margin-top:12px;line-height:1.65;color:#214773}.lesson-rule strong{color:#1c4795}.legend{display:flex;gap:20px;flex-wrap:wrap;align-items:center;justify-content:space-between;padding:12px 2px 8px}.legend-items{display:flex;flex-wrap:wrap;gap:17px;font-size:14px;color:#4d617e}.swatch{display:inline-block;width:29px;border-top:3px solid var(--blue);vertical-align:middle;margin-left:5px}.swatch.return{border-color:var(--amber)}.swatch.done{border-color:var(--green)}.zoomtools{display:flex;align-items:center;gap:6px}.zoomtools span{min-width:50px;text-align:center;color:#41597d;font-weight:700;font-variant-numeric:tabular-nums}.zoomtools button{padding:5px 9px}
+.workspace{display:grid;grid-template-columns:minmax(0,1fr) var(--inspector-width);gap:0;border:1px solid var(--border);border-radius:15px;background:#fff;overflow:hidden;direction:ltr;min-height:470px}.viewport-area{position:relative;min-width:0;direction:ltr;overflow:hidden;background-color:#f8fbff;background-image:radial-gradient(#d5e0ef 1px,transparent 1px);background-size:21px 21px}.viewport{width:100%;height:510px;overflow:auto;outline-offset:-3px;scrollbar-color:#bbcae2 #f4f8ff;cursor:grab}.viewport:active{cursor:grabbing}.scene-space{position:relative;overflow:visible}.scene-space svg{display:block;max-width:none;overflow:visible}.inspector{position:relative;direction:rtl;padding:18px 14px 20px;background:#fff;border-left:1px solid var(--border);overflow:auto;min-width:0}.inspector-resizer{position:absolute;top:0;bottom:0;left:0;width:8px;cursor:col-resize;background:transparent;z-index:8}.inspector-resizer:hover{background:#dbeafe}.inspector-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.inspector h2{color:#1b4d99;font-size:18px}.inspector p{margin:7px 0 13px;font-size:14px;color:#516580;line-height:1.7}.active-invocation{border:1px solid #c8d9f1;background:#f2f7ff;padding:10px 9px;border-radius:10px;font-size:13px;line-height:1.6}.csharp{direction:ltr;unicode-bidi:isolate;font:600 13px/1.6 Consolas,monospace;display:block;white-space:normal;overflow-wrap:anywhere;color:#23549d;text-align:left}.list-scroll{overflow-x:auto;overflow-y:visible;padding:14px 2px 31px;direction:ltr}.node-list{display:flex;align-items:flex-start;min-width:max-content;padding:2px 3px 8px}.linked-cell{display:flex;align-items:center;position:relative}.linked-node{position:relative;border:2px solid #adc5e7;border-radius:9px;background:#f8faff;min-width:47px;height:45px;display:flex;justify-content:center;align-items:center;color:#274a7b;font:700 21px Consolas,monospace}.linked-node.visited{background:#f1f5ff;border-color:#95b1e1;color:#355d98}.linked-node.current{border-color:#2468eb;background:#dfedff;box-shadow:0 0 0 3px #c7dcff;color:#1345a6}.linked-node.done{background:#e5f8ee;border-color:#30a67d;color:#046b4e}.linked-node .marker{position:absolute;top:51px;left:50%;transform:translateX(-50%);color:#2056bd;font:700 12px Arial;white-space:nowrap}.list-arrow{font-size:24px;font-weight:bold;color:#6c88ad;padding:7px 5px}.null-node{font:700 13px Consolas,monospace;min-width:50px}.legend-note{font-size:13px;line-height:1.7;color:#50637c;border-top:1px solid #e5ebf4;padding-top:10px;margin-top:14px}.console{border:1px solid #b9d7cb;background:#f0faf6;border-radius:11px;padding:12px;margin:15px 0}.console-label{display:block;font-size:13px;color:#287255;font-weight:700;margin-bottom:5px}.output{font:700 22px/1.4 Consolas,monospace;direction:ltr;white-space:pre-wrap;min-height:31px;text-align:left;color:#124d38}.output:empty:before{content:'(empty)';font:400 13px Consolas,monospace;color:#81968e}.code-section{background:#f7f9fd;border:1px solid #dbe4ef;border-radius:11px;padding:11px 7px;margin-top:12px}.code-section summary{color:#204a8d;font-weight:700;cursor:pointer;padding:1px 6px}.code-lines{margin:10px 0 0;direction:ltr;text-align:left;overflow-x:auto;font:13px/1.65 Consolas,"Courier New",monospace;color:#243754}.code-line{white-space:pre;display:block;padding:1px 6px;border-radius:5px;min-height:20px}.code-line.current{background:#dfeafd;color:#103d8b;font-weight:bold}.code-line .line-num{display:inline-block;width:18px;color:#8e9cae;text-align:right;margin-right:10px;font-size:11px;user-select:none}
+svg text{font-family:Arial,sans-serif}button:focus-visible,select:focus-visible,.viewport:focus-visible,.inspector-resizer:focus-visible{outline:3px solid #f0ab26;outline-offset:2px}
+#app:fullscreen{background:#f3f6fc;max-width:none;height:100vh;overflow:auto;padding:15px}#app:fullscreen .viewport{height:calc(100vh - 290px);min-height:370px}#app:fullscreen .workspace{min-height:0}
+@media(max-width:900px){#app{padding:9px}.workspace{display:flex;flex-direction:column}.viewport-area{order:2}.inspector{order:1;border-left:none;border-bottom:1px solid var(--border);overflow:visible}.inspector-resizer{display:none}.viewport{height:435px}.event-strip{flex-wrap:wrap}.toolbar .grow{display:none}}
+@media print{body{background:#fff}#app{padding:0}.toolbar,.zoomtools,.inspector-resizer{display:none!important}header,.workspace{box-shadow:none;break-inside:avoid}.workspace{display:block}.viewport{height:auto!important;overflow:visible}.scene-space{transform:scale(.72);transform-origin:top left}.inspector{border:none}.viewport-area{min-height:260px} .code-section{break-inside:avoid}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;animation:none!important}}
+
+/* Summation-specific learning and value displays */
+.result-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.result-head .console-label{margin:0}
+.result-card{margin:14px 0;background:#f0faf6;border:2px solid #b7dfcd}
+.result-card .output{font-size:32px;min-width:48px;text-align:center;line-height:1.3}
+.result-card .output:empty:before{content:none}
+.formula{font-family:Consolas,"Courier New",monospace;font-size:18px;font-weight:700;color:#1a577c;text-align:center;background:#fff;border:1px solid #d7e7e2;padding:10px 8px;margin-top:11px;border-radius:8px;white-space:normal;overflow-wrap:anywhere}
+.stack-panel{border:1px solid #d3e0f1;background:#fcfdff;border-radius:11px;padding:11px;margin:12px 0}
+.stack-panel h3{margin:0 0 9px;color:#244b88;font-size:14px}
+.stack-rows{display:grid;gap:5px}
+.stack-row{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #dce6f2;border-radius:7px;padding:5px 8px;background:#fff;font-size:13px}
+.stack-row .expr{direction:ltr;text-align:left;unicode-bidi:isolate;font:600 13px Consolas,monospace;color:#285590}
+.stack-row .state{color:#62758e;font-size:12px}
+.stack-row.current{background:#eaf2ff;border-color:#90b6f5}
+.stack-row.done{background:#ecf9f1;border-color:#a5d8bc}
+.stack-empty{font-size:13px;color:#657992}
+.status.combine{background:#e5f7ee;color:#08704e}
+.status.base{background:#f1eafd;color:#6640a0}
+@media(max-width:520px){.result-head{align-items:flex-start}.formula{font-size:15px}.stack-row .expr{font-size:12px}}
+
+/* Shared accumulator: exactly one Acc instance for every recursion frame */
+.acc-object{background:#f0faf6;border:2px solid #9bd5bd;border-radius:13px;padding:13px;margin:14px 0}
+.acc-head{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap}
+.acc-object-title{font-size:15px;font-weight:800;color:#176d53}
+.acc-reference{font:700 13px Consolas,monospace;color:#2a5871;direction:ltr;unicode-bidi:isolate}
+.acc-value{font:800 43px/1.25 Consolas,monospace;color:#087e60;text-align:center;margin:7px 0}
+.acc-formula{background:white;border:1px solid #cbe4d6;border-radius:9px;font:700 17px Consolas,monospace;text-align:center;padding:10px;color:#23684c;direction:ltr;min-height:43px}
+.acc-timeline{display:flex;align-items:center;gap:8px;flex-wrap:wrap;direction:ltr;justify-content:center;margin-top:11px}
+.acc-timeline .value{border-radius:8px;padding:5px 9px;background:white;border:1px solid #cfe5d8;color:#236a50;font:700 15px Consolas,monospace}
+.acc-timeline .value.current{background:#d3f3e4;border-color:#39b780}
+.acc-timeline .arrow{color:#6e9988}
+.acc-message{font-size:13px;margin:10px 0 0;color:#316a55;line-height:1.65}
+.stack-row .expr{font-size:12px}
+.status.update{background:#e5f7ee;color:#08704e}
+.status.base{background:#f1eafd;color:#6640a0}
+@media(max-width:520px){.acc-value{font-size:35px}.acc-formula{font-size:14px}.workspace{min-height:0}.viewport{height:400px}}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+  <h1>רקורסיה על רשימה מקושרת — סכימה עם צובר</h1>
+  <p class="subtitle">הפונקציה <b dir="ltr">SumWithAcc(Node node, Acc acc)</b> מוסיפה את ערך האיבר לשדה <b dir="ltr">acc.sum</b> <b>לפני</b> הקריאה הרקורסיבית. כל הקריאות מקבלות <b>הפניה לאותו אובייקט Acc</b>. עבור <span dir="ltr">1 → 2 → 3 → 4 → null</span> מתקבל <b dir="ltr">acc.sum = 10</b>.</p>
+  <div class="toolbar" aria-label="פקדי מעבר בין צעדים">
+    <button id="prev" aria-label="הצעד הקודם">◀ הקודם</button>
+    <button id="next" class="primary" aria-label="הצעד הבא">הבא ▶</button>
+    <button id="play" aria-label="הפעל הדגמה אוטומטית">▶ הפעלה</button>
+    <select id="speed" aria-label="מהירות הפעלה"><option value="1900">איטי</option><option value="1250" selected>רגיל</option><option value="700">מהיר</option></select>
+    <button id="reset" aria-label="התחל מההתחלה">↺ איפוס</button>
+    <span class="grow"></span>
+    <button id="treeMode" aria-pressed="true">כל הקריאות</button>
+    <button id="focusMode" aria-pressed="false">מיקוד בקריאה</button>
+    <button id="fullscreen" aria-label="הצג במסך מלא">⛶ מסך מלא</button>
+    <span id="stepnum" class="stepnum">1 / 19</span>
+  </div>
+  <div class="progress-shell" role="progressbar" aria-label="התקדמות בהדמיה" aria-valuemin="1" aria-valuemax="19" aria-valuenow="1" id="progressbar"><div id="progress" class="progress"></div></div>
+  <section class="event-strip" aria-live="polite" aria-atomic="true">
+    <div><strong id="eventTitle">מתחילים בקריאה הראשונה</strong><p id="eventText">הקריאה הראשונה מקבלת את ראש הרשימה ואת אובייקט הצובר.</p></div><span id="status" class="status">תחילת קריאה</span>
+  </section>
+</header>
+<div class="lesson-rule"><strong>כלל מרכזי:</strong> הפקודה <span dir="ltr">acc.sum += node.GetValue()</span> מעדכנת את האובייקט המשותף בזמן <b>הירידה ברקורסיה</b>. כאשר מגיעים ל־<span dir="ltr">null</span> חוזרים ללא חישוב נוסף. הפונקציה היא <span dir="ltr">void</span>: אינה מחזירה מספר ואינה מדפיסה דבר.</div>
+<div class="legend">
+  <div class="legend-items"><span><i class="swatch"></i> קריאה רקורסיבית</span><span><i class="swatch return"></i> חזרה ללא ערך (void)</span><span><i class="swatch done"></i> קריאה שהסתיימה</span></div>
+  <div class="zoomtools"><button class="mini-btn" id="zoomOut" aria-label="הקטן">−</button><span id="zoomPct">70%</span><button class="mini-btn" id="zoomIn" aria-label="הגדל">+</button><button class="mini-btn" id="fit">התאם</button></div>
+</div>
+<div id="workspace" class="workspace">
+  <div class="viewport-area"><div id="viewport" class="viewport" tabindex="0" aria-label="תרשים הקריאות הרקורסיביות, ניתן לגלול"><div id="sceneSpace" class="scene-space"><svg id="graph" role="img" aria-label="תרשים קריאות וחזרות" xmlns="http://www.w3.org/2000/svg"></svg></div></div></div>
+  <aside id="inspector" class="inspector" aria-label="מצב הרשימה, אובייקט הצובר והקוד">
+    <div id="resizer" class="inspector-resizer" role="separator" tabindex="0" aria-label="שנה את רוחב חלונית הרשימה" aria-orientation="vertical"></div>
+    <div class="inspector-head"><h2>הרשימה המקושרת</h2><button id="hideInspector" class="mini-btn" aria-pressed="false">הסתר</button></div>
+    <div id="inspectorBody">
+      <p>המסגרת הכחולה מראה לאיזה איבר מצביע הפרמטר <code dir="ltr">node</code> בקריאה הפעילה. כל האיברים משתפים <b>אותו צובר</b>.</p>
+      <div class="active-invocation">הקריאה הפעילה: <span id="activeSignature" class="csharp"></span></div>
+      <div class="list-scroll"><div id="listNodes" class="node-list" aria-label="1 מצביע ל 2, 2 ל 3, 3 ל 4, 4 מצביע ל null"></div></div>
+      <section class="acc-object" aria-label="אובייקט Acc משותף">
+        <div class="acc-head"><span class="acc-object-title">אובייקט צובר אחד ומשותף</span><span class="acc-reference">Acc #1</span></div>
+        <div class="acc-value" id="accValue" dir="ltr" aria-live="polite">0</div>
+        <div class="acc-formula" id="accFormula">acc.sum = 0</div>
+        <div class="acc-timeline" id="accTimeline" aria-label="היסטוריית הצטברות"></div>
+        <p id="accMessage" class="acc-message">שדה sum מאותחל ל־0. כל הקריאות יקבלו את אותה הפניה.</p>
+      </section>
+      <div class="stack-panel"><h3>מחסנית הקריאות הפעילות</h3><div id="stackRows" class="stack-rows" aria-live="off"></div></div>
+      <p id="inspectorHint" class="legend-note"></p>
+      <details class="code-section" open><summary>קוד C# המקורי</summary><div id="codeLines" class="code-lines"></div></details>
+    </div>
+  </aside>
+</div>
+</div>
+<script>
+ 'use strict';
+(function () {
+    const VALUES = [1, 2, 3, 4];
+    // Exact C# implementation supplied by the user (including the Acc class).
+    const SOURCE = [
+        'public class Acc',
+        '{',
+        '    public int sum = 0;',
+        '}',
+        '',
+        'public static void SumWithAcc(Node node, Acc acc)',
+        '{',
+        '    if (node == null)',
+        '        return;',
+        '',
+        '    acc.sum += node.GetValue();',
+        '    SumWithAcc(node.GetNext(), acc);',
+        '}'
+    ];
+    const NS = 'http://www.w3.org/2000/svg';
+    const get = id => document.getElementById(id);
+    function add(parent, name, attrs = {}, content) {
+        const el = document.createElementNS(NS, name);
+        for (const [key, value] of Object.entries(attrs)) el.setAttribute(key, String(value));
+        if (content !== undefined) el.textContent = content;
+        parent.appendChild(el);
+        return el;
+    }
+    function buildTrace(values) {
+        if (!Array.isArray(values) || values.some(v => !Number.isFinite(v))) {
+            throw new Error('Expected a list of finite numeric values');
+        }
+        // One Acc object: every update changes the SAME shared sum.
+        const sharedAcc = {sum: 0};
+        const frames = [], events = [];
+        function visit(index, parentId) {
+            const id = 'f' + frames.length, isBase = index === values.length;
+            const frame = {
+                id, parentId, index, number: frames.length + 1,
+                label: isBase ? 'null' : String(values[index]),
+                value: isBase ? null : values[index], accId: 'Acc #1'
+            };
+            frames.push(frame);
+            if (parentId === null) events.push({type: 'start', node: id, line: 5});
+            else events.push({type: 'call', from: parentId, to: id, line: 11});
+            if (isBase) {
+                events.push({type: 'base', node: id, line: 8});
+            } else {
+                events.push({type: 'guard', node: id, line: 7});
+                const before = sharedAcc.sum;
+                sharedAcc.sum += values[index];
+                events.push({type: 'update', node: id, before, added: values[index], after: sharedAcc.sum, line: 10});
+                visit(index + 1, id);
+            }
+            if (parentId === null) events.push({type: 'finish', node: id, line: 12});
+            else events.push({type: 'return', from: id, to: parentId, line: isBase ? 8 : 12});
+        }
+        visit(0, null);
+        return {frames, events, result: sharedAcc.sum};
+    }
+    const trace = buildTrace(VALUES);
+    const byId = new Map(trace.frames.map(f => [f.id, f]));
+    const ui = {step: 0, mode: 'tree', zoom: .7, timer: null, playing: false, inspectorHidden: false};
+    let scene = null;
+    function snapshot(step, sourceTrace = trace) {
+        const entered = new Set(), completed = new Set(), calls = new Set(), returns = new Set(), updated = new Map();
+        const stack = [], history = [0];
+        let active = null, finished = false, accSum = 0, lastUpdate = null;
+        for (let i = 0; i <= step; i++) {
+            const e = sourceTrace.events[i];
+            switch (e.type) {
+                case 'start': entered.add(e.node); stack.push(e.node); active = e.node; break;
+                case 'guard': active = e.node; break;
+                case 'update':
+                    if (accSum !== e.before || e.after !== e.before + e.added) throw new Error('Invalid shared accumulator update');
+                    accSum = e.after; history.push(accSum); updated.set(e.node, e); lastUpdate = e; active = e.node; break;
+                case 'call': entered.add(e.to); calls.add(e.from + '-' + e.to); stack.push(e.to); active = e.to; break;
+                case 'base': active = e.node; break;
+                case 'return':
+                    if (stack[stack.length - 1] !== e.from) throw new Error('Invalid recursion stack');
+                    stack.pop(); completed.add(e.from); returns.add(e.from + '-' + e.to); active = e.to; break;
+                case 'finish':
+                    if (stack.length !== 1 || stack[0] !== e.node) throw new Error('Invalid root finish');
+                    stack.pop(); completed.add(e.node); active = e.node; finished = true; break;
+            }
+        }
+        return {entered, completed, calls, returns, updated, stack, active, finished, accSum, history, lastUpdate, event: sourceTrace.events[step]};
+    }
+    function layoutFull() {
+        const positions = new Map(), w = 296, h = 165, gap = 93, pad = 50;
+        trace.frames.forEach((f, i) => positions.set(f.id, {x: pad + i * (w + gap), y: 99, w, h}));
+        return {positions, width: 2 * pad + trace.frames.length * w + (trace.frames.length - 1) * gap, height: 400};
+    }
+    const full = layoutFull();
+    function layoutFocus(s) {
+        const frame = byId.get(s.active), parent = frame.parentId ? byId.get(frame.parentId) : null;
+        const child = trace.frames.find(f => f.parentId === frame.id) || null;
+        const positions = new Map();
+        if (parent) positions.set(parent.id, {x: 22, y: 125, w: 287, h: 165});
+        positions.set(frame.id, {x: 383, y: 102, w: 390, h: 188});
+        if (child) positions.set(child.id, {x: 853, y: 125, w: 287, h: 165});
+        return {positions, width: child ? 1180 : 810, height: 405, previewChild: child && !s.entered.has(child.id) ? child.id : null};
+    }
+    function drawDefs(svg) {
+        const defs = add(svg, 'defs');
+        for (const spec of [{id: 'callHead', color: '#397ce8'}, {id: 'returnHead', color: '#c38324'}, {id: 'previewHead', color: '#a8b9cf'}]) {
+            const marker = add(defs, 'marker', {id: spec.id, viewBox: '0 0 10 10', refX: 9, refY: 5,
+                markerUnits: 'userSpaceOnUse', markerWidth: 8, markerHeight: 8, orient: 'auto'});
+            add(marker, 'path', {d: 'M 1 1 L 9 5 L 1 9 Z', fill: spec.color});
+        }
+    }
+    function textLine(svg, x, y, value, {size = 16, color = '#304564', weight = 400, mono = false, anchor = 'start'} = {}) {
+        return add(svg, 'text', {x, y, 'font-size': size, fill: color, 'font-weight': weight,
+            'text-anchor': anchor, direction: 'ltr', 'unicode-bidi': 'plaintext',
+            'font-family': mono ? 'Consolas, monospace' : 'Arial, sans-serif'}, value);
+    }
+    function drawEdge(svg, a, b, kind, {newly = false, preview = false, dim = false} = {}) {
+        if (!a || !b) return;
+        const call = kind === 'call';
+        const x1 = call ? a.x + a.w : b.x, x2 = call ? b.x : a.x + a.w;
+        const y1 = call ? a.y + a.h * .38 : b.y + b.h * .79;
+        const y2 = call ? b.y + b.h * .38 : a.y + a.h * .79;
+        const dx = Math.max(22, Math.abs(x2 - x1) * .41), direction = call ? 1 : -1;
+        const path = `M ${x1} ${y1} C ${x1 + direction * dx} ${y1 + (call ? -10 : 21)} ${x2 - direction * dx} ${y2 + (call ? -10 : 21)} ${x2} ${y2}`;
+        add(svg, 'path', {d: path, fill: 'none', stroke: preview ? '#a9bace' : call ? '#397ce8' : '#c38324',
+            'stroke-width': newly ? 4 : 3, opacity: dim ? .36 : preview ? .78 : 1,
+            'stroke-dasharray': preview ? '8 7' : 'none',
+            'marker-end': `url(#${preview ? 'previewHead' : call ? 'callHead' : 'returnHead'})`});
+        if (!call) {
+            const lx = (x1 + x2) / 2, ly = (y1 + y2) / 2 + 22;
+            add(svg, 'rect', {x: lx - 31, y: ly - 18, width: 62, height: 29, rx: 10, fill: '#fff2d9', stroke: '#c38324', 'stroke-width': 1.3});
+            textLine(svg, lx, ly + 2, 'void', {size: 16, color: '#81520d', weight: 700, mono: true, anchor: 'middle'});
+        }
+    }
+    function renderFrame(svg, frame, rect, s, preview) {
+        const active = s.active === frame.id && !s.finished, finished = s.completed.has(frame.id);
+        const onStack = s.stack.includes(frame.id), isBase = frame.index === VALUES.length;
+        const stroke = preview ? '#9eafc7' : active ? '#2368ea' : finished ? '#2b9c79' : onStack ? '#82a4e9' : '#b9cade';
+        const fill = preview ? '#f7f9fc' : active ? '#e9f2ff' : finished ? '#eaf9f1' : onStack ? '#f4f7ff' : '#fff';
+        add(svg, 'rect', {x: rect.x, y: rect.y, width: rect.w, height: rect.h, rx: 15, fill, stroke,
+            'stroke-width': active ? 3.2 : 2, 'stroke-dasharray': preview ? '9 6' : 'none'});
+        const x = rect.x + 15;
+        textLine(svg, x, rect.y + 27, '#' + frame.number + ' SumWithAcc(node, acc)', {size: 16, weight: 700, color: preview ? '#8291a8' : '#174787', mono: true});
+        if (preview) {
+            textLine(svg, x, rect.y + 61, 'UPCOMING · טרם בוצעה', {size: 13, color: '#8291a8', weight: 700});
+            return;
+        }
+        textLine(svg, x, rect.y + 58, 'node → ' + frame.label + '   acc → #1', {size: 16, color: '#375578', mono: true, weight: 600});
+        if (isBase) {
+            textLine(svg, x, rect.y + 93, 'node == null', {size: 17, color: '#7753a0', weight: 700, mono: true});
+            textLine(svg, x, rect.y + 123, 'return;  (void)', {size: 15, color: '#7753a0', mono: true});
+        } else if (s.updated.has(frame.id)) {
+            const e = s.updated.get(frame.id);
+            textLine(svg, x, rect.y + 91, 'acc.sum: ' + e.before + ' + ' + e.added + ' = ' + e.after,
+                {size: 18, color: '#087e60', weight: 700, mono: true});
+        } else {
+            textLine(svg, x, rect.y + 91, 'acc.sum += ' + frame.label + ' (pending)',
+                {size: 15, color: '#637997', mono: true});
+        }
+        const bottom = rect.y + rect.h - 18;
+        if (finished) textLine(svg, x, bottom, '✓ הסתיימה (void)', {size: 15, color: '#087e60', weight: 700});
+        else if (active) textLine(svg, x, bottom, '● הקריאה הפעילה', {size: 14, color: '#1559c3', weight: 700});
+        else if (onStack) textLine(svg, x, bottom, 'ממתינה לחזרת הקריאה הבאה', {size: 13, color: '#637891'});
+    }
+    function renderGraph(s) {
+        scene = ui.mode === 'focus' ? layoutFocus(s) : full;
+        const svg = get('graph'); svg.replaceChildren(); svg.setAttribute('viewBox', `0 0 ${scene.width} ${scene.height}`); drawDefs(svg);
+        const visible = f => scene.positions.has(f.id) && (s.entered.has(f.id) || scene.previewChild === f.id);
+        for (const f of trace.frames) {
+            if (!f.parentId || !visible(f)) continue;
+            const parent = byId.get(f.parentId); if (!visible(parent)) continue;
+            const forward = parent.id + '-' + f.id, backward = f.id + '-' + parent.id, preview = scene.previewChild === f.id;
+            if (s.calls.has(forward) || preview) drawEdge(svg, scene.positions.get(parent.id), scene.positions.get(f.id), 'call', {
+                preview, dim: s.completed.has(f.id), newly: s.event.type === 'call' && s.event.to === f.id});
+            if (s.returns.has(backward)) drawEdge(svg, scene.positions.get(parent.id), scene.positions.get(f.id), 'return', {
+                newly: s.event.type === 'return' && s.event.from === f.id});
+        }
+        for (const f of trace.frames) if (visible(f)) renderFrame(svg, f, scene.positions.get(f.id), s, scene.previewChild === f.id);
+        // A single shared instance, never per-frame copies; its value remains unchanged when unwinding.
+        const boxX = ui.mode === 'focus' ? 395 : 61;
+        const boxY = 308;
+        add(svg, 'rect', {x: boxX, y: boxY, width: 257, height: 65, rx: 12, fill: '#ecfaf2', stroke: '#2c9d72', 'stroke-width': 2.5});
+        textLine(svg, boxX + 14, boxY + 24, 'Acc #1  ·  shared object', {size: 16, color: '#217855', weight: 700, mono: true});
+        textLine(svg, boxX + 14, boxY + 50, 'acc.sum = ' + s.accSum, {size: 21, color: '#06724f', weight: 800, mono: true});
+        applyZoom();
+    }
+    function applyZoom() {
+        if (!scene) return;
+        const space = get('sceneSpace'), svg = get('graph');
+        space.style.width = scene.width * ui.zoom + 'px'; space.style.height = scene.height * ui.zoom + 'px';
+        svg.setAttribute('width', scene.width * ui.zoom); svg.setAttribute('height', scene.height * ui.zoom);
+        get('zoomPct').textContent = Math.round(ui.zoom * 100) + '%';
+    }
+    function focusOnActive(s) {
+        if (!scene) return;
+        const r = scene.positions.get(s.active); if (!r) return;
+        const view = get('viewport');
+        view.scrollLeft = Math.max(0, (r.x + r.w / 2) * ui.zoom - view.clientWidth / 2);
+        view.scrollTop = Math.max(0, (r.y + r.h / 2) * ui.zoom - view.clientHeight / 2);
+    }
+    function describe(s) {
+        const e = s.event, frame = byId.get(e.node || e.to || e.from);
+        switch (e.type) {
+            case 'start': return ['הקריאה הראשונה', 'הפרמטר node מצביע לאיבר 1, והפרמטר acc מצביע לאובייקט Acc #1 שבו sum = 0.', 'תחילת קריאה', '', 5];
+            case 'guard': return ['בודקים אם node הוא null', 'הערך הנוכחי הוא ' + frame.label + '. זהו איבר ממשי, ולכן ממשיכים לעדכן את הצובר.', 'בדיקת תנאי', '', 7];
+            case 'update': return ['מעדכנים את הצובר המשותף', 'מחשבים acc.sum = ' + e.before + ' + ' + e.added + ' = ' + e.after + '. השינוי מתרחש עכשיו, לפני הקריאה לאיבר הבא.', 'צובר: ' + e.after, 'update', 10];
+            case 'call': return ['קריאה רקורסיבית לאיבר הבא', 'מפעילים SumWithAcc(node.GetNext(), acc). מעבירים בדיוק את אותו acc; סכום הצובר כרגע הוא ' + s.accSum + '.', 'קריאה רקורסיבית', '', 11];
+            case 'base': return ['הגענו לתנאי העצירה', 'node == null ולכן מבצעים return;. אין שינוי נוסף ב־acc.sum, שערכו ' + s.accSum + '.', 'תנאי עצירה', 'base', 8];
+            case 'return': return ['חוזרים לקריאה הקודמת', 'הקריאה הסתיימה ללא ערך מוחזר (void). acc.sum נשאר ' + s.accSum + ', כי אין פעולת חיבור אחרי הקריאה הרקורסיבית.', 'חזרה (void)', 'return', 12];
+            case 'finish': return ['כל הקריאות הסתיימו', 'הפונקציה הסתיימה ללא ערך מוחזר. באובייקט Acc #1 השדה sum שווה ' + s.accSum + '. אין בקוד פקודת הדפסה.', 'הסתיים: 10', 'update', 12];
+        }
+    }
+    function renderInspector(s) {
+        const active = byId.get(s.active), isBase = active.index === VALUES.length;
+        get('activeSignature').textContent = 'SumWithAcc(node → ' + active.label + ', acc → Acc #1)';
+        const list = get('listNodes'); list.replaceChildren();
+        for (let i = 0; i <= VALUES.length; i++) {
+            const wrap = document.createElement('span'); wrap.className = 'linked-cell';
+            const cell = document.createElement('span');
+            cell.className = 'linked-node' + (i === active.index && !s.finished ? ' current' : '') +
+                (s.updated.has('f' + i) ? ' done' : s.entered.has('f' + i) ? ' visited' : '') +
+                (i === VALUES.length ? ' null-node' : '');
+            cell.textContent = i === VALUES.length ? 'null' : String(VALUES[i]);
+            if (i === active.index && !s.finished) {
+                const marker = document.createElement('span'); marker.className = 'marker';
+                marker.textContent = '↑ node'; cell.appendChild(marker);
+            }
+            wrap.appendChild(cell);
+            if (i < VALUES.length) {
+                const arrow = document.createElement('span'); arrow.className = 'list-arrow'; arrow.textContent = '→'; wrap.appendChild(arrow);
+            }
+            list.appendChild(wrap);
+        }
+        get('accValue').textContent = String(s.accSum);
+        get('accFormula').textContent = s.event.type === 'update'
+            ? 'acc.sum: ' + s.event.before + ' + ' + s.event.added + ' = ' + s.event.after
+            : 'acc.sum = ' + s.accSum;
+        const timeline = get('accTimeline'); timeline.replaceChildren();
+        s.history.forEach((val, i) => {
+            if (i) {const arrow = document.createElement('span'); arrow.className = 'arrow'; arrow.textContent = '→'; timeline.appendChild(arrow);}
+            const item = document.createElement('span'); item.className = 'value' + (i === s.history.length - 1 ? ' current' : '');
+            item.textContent = String(val); timeline.appendChild(item);
+        });
+        get('accMessage').textContent = s.finished
+            ? 'הצובר מכיל את הסכום הסופי. אין ערך החזרה מהפונקציה ואין פלט למסך.'
+            : s.event.type === 'update'
+                ? 'האובייקט Acc #1 עודכן על ידי הקריאה הנוכחית. הקריאות הקודמות רואות מיד את אותו ערך.'
+                : s.event.type === 'return' || s.event.type === 'base'
+                    ? 'כעת חוזרים ברקורסיה. אין חיבור נוסף בדרך חזרה; הערך נשאר קבוע.'
+                    : 'כל הקריאות חולקות את Acc #1. זהו אובייקט אחד, לא עותק לכל קריאה.';
+        const rows = get('stackRows'); rows.replaceChildren();
+        if (!s.stack.length) {
+            const row = document.createElement('div'); row.className = 'stack-empty';
+            row.textContent = 'כל הקריאות הסתיימו. Acc #1 → sum = ' + s.accSum; rows.appendChild(row);
+        } else {
+            for (const id of s.stack) {
+                const f = byId.get(id), row = document.createElement('div');
+                row.className = 'stack-row' + (id === active.id ? ' current' : '') + (s.updated.has(id) ? ' done' : '');
+                const expr = document.createElement('span'); expr.className = 'expr';
+                expr.textContent = 'SumWithAcc(' + f.label + ', Acc #1)';
+                const state = document.createElement('span'); state.className = 'state';
+                state.textContent = id === active.id ? 'פעילה' : s.updated.has(id) ? 'הצובר עודכן' : 'ממתינה';
+                row.append(state, expr); rows.appendChild(row);
+            }
+        }
+        get('inspectorHint').textContent = s.finished
+            ? 'הסכום 10 נמצא בשדה acc.sum של האובייקט שהועבר לפונקציה. הפונקציה עצמה היא void.'
+            : isBase ? 'כאשר node הוא null, מבצעים return בלי לשנות את הצובר.'
+            : s.event.type === 'return' ? 'אחרי הקריאה הרקורסיבית אין פקודות נוספות, לכן חוזרים הלאה בלי לשנות את acc.sum.'
+            : 'בכל איבר פועלים בסדר: בדיקת תנאי ← עדכון acc.sum ← קריאה רקורסיבית.';
+        const line = describe(s)[4];
+        document.querySelectorAll('.code-line').forEach(el => el.classList.toggle('current', Number(el.dataset.line) === line));
+    }
+    function renderAll(center = true) {
+        const s = snapshot(ui.step), d = describe(s);
+        get('eventTitle').textContent = 'שלב ' + (ui.step + 1) + ': ' + d[0]; get('eventText').textContent = d[1];
+        get('status').textContent = d[2]; get('status').className = 'status ' + d[3];
+        get('stepnum').textContent = (ui.step + 1) + ' / ' + trace.events.length;
+        get('progressbar').setAttribute('aria-valuenow', ui.step + 1);
+        get('progressbar').setAttribute('aria-valuemax', trace.events.length);
+        get('progress').style.width = 100 * (ui.step + 1) / trace.events.length + '%';
+        get('prev').disabled = ui.step === 0; get('next').disabled = ui.step === trace.events.length - 1;
+        get('treeMode').setAttribute('aria-pressed', ui.mode === 'tree'); get('focusMode').setAttribute('aria-pressed', ui.mode === 'focus');
+        renderGraph(s); renderInspector(s); if (center) focusOnActive(s);
+    }
+    function stop() {
+        if (ui.timer !== null) {clearInterval(ui.timer); ui.timer = null;}
+        ui.playing = false; get('play').textContent = '▶ הפעלה'; get('play').setAttribute('aria-label', 'הפעל הדגמה אוטומטית');
+    }
+    function goTo(step, auto = false) {
+        if (!auto) stop();
+        ui.step = Math.max(0, Math.min(trace.events.length - 1, step));
+        renderAll(); if (ui.step === trace.events.length - 1) stop();
+    }
+    function togglePlayback() {
+        if (ui.playing) {stop(); return;}
+        if (ui.step === trace.events.length - 1) ui.step = 0;
+        ui.playing = true; get('play').textContent = '⏸ עצור'; get('play').setAttribute('aria-label', 'עצור הדגמה אוטומטית');
+        goTo(ui.step, true);
+        ui.timer = setInterval(() => {
+            if (ui.step >= trace.events.length - 1) {stop(); return;}
+            goTo(ui.step + 1, true);
+        }, Number(get('speed').value));
+    }
+    function setZoom(next) {
+        ui.zoom = Math.max(.6, Math.min(1.85, Math.round(next * 100) / 100));
+        applyZoom(); focusOnActive(snapshot(ui.step));
+    }
+    function fit() {
+        if (!scene) return;
+        const v = get('viewport');
+        setZoom(Math.min(1.4, Math.max(.6, Math.min((v.clientWidth - 24) / scene.width, (v.clientHeight - 24) / scene.height))));
+    }
+    function initCode() {
+        const target = get('codeLines');
+        SOURCE.forEach((line, i) => {
+            const row = document.createElement('div'); row.className = 'code-line'; row.dataset.line = i;
+            const number = document.createElement('span'); number.className = 'line-num'; number.textContent = i + 1;
+            row.append(number, document.createTextNode(line)); target.appendChild(row);
+        });
+    }
+    function validate() {
+        const events = trace.events;
+        if (trace.frames.length !== 5 || trace.frames[4].label !== 'null' || events.length !== 19 ||
+            events.filter(e => e.type === 'call').length !== 4 ||
+            events.filter(e => e.type === 'update').length !== 4 ||
+            events.filter(e => e.type === 'return').length !== 4 ||
+            events.filter(e => e.type === 'base').length !== 1 ||
+            trace.result !== 10) throw new Error('Recursion trace structure failed');
+        let firstReturn = events.findIndex(e => e.type === 'return');
+        if (events.some((e, i) => e.type === 'update' && i > firstReturn)) throw new Error('Accumulator changed during unwind');
+        for (let i = 0; i < events.length; i++) {
+            const s = snapshot(i);
+            const expected = events.slice(0, i + 1).filter(e => e.type === 'update').reduce((sum, e) => sum + e.added, 0);
+            if (s.accSum !== expected) throw new Error('Shared Acc mismatch at step ' + i);
+        }
+        const final = snapshot(events.length - 1);
+        if (!final.finished || final.accSum !== 10 || final.stack.length !== 0 ||
+            final.history.join(',') !== '0,1,3,6,10') throw new Error('Final accumulated sum is incorrect');
+        for (const sample of [[], [7], [4, 9], [-9, -3, -8], [5, 5, 5], [0, 0, 0], [1, 2, 3, 4]]) {
+            const t = buildTrace(sample), end = snapshot(t.events.length - 1, t);
+            const total = sample.reduce((sum, n) => sum + n, 0);
+            if (!end.finished || end.stack.length || end.accSum !== total || t.result !== total ||
+                t.frames.length !== sample.length + 1 || t.events.length !== 4 * sample.length + 3 ||
+                t.events.filter(e => e.type === 'update').length !== sample.length) throw new Error('Generic Acc test failed');
+        }
+        return true;
+    }
+    function init() {
+        validate(); initCode();
+        get('next').addEventListener('click', () => goTo(ui.step + 1));
+        get('prev').addEventListener('click', () => goTo(ui.step - 1));
+        get('reset').addEventListener('click', () => goTo(0));
+        get('play').addEventListener('click', togglePlayback);
+        get('speed').addEventListener('change', () => {if (ui.playing) {stop(); togglePlayback();}});
+        get('treeMode').addEventListener('click', () => {stop(); ui.mode = 'tree'; renderAll(); fit();});
+        get('focusMode').addEventListener('click', () => {stop(); ui.mode = 'focus'; renderAll(); fit();});
+        get('zoomIn').addEventListener('click', () => setZoom(ui.zoom + .1));
+        get('zoomOut').addEventListener('click', () => setZoom(ui.zoom - .1));
+        get('fit').addEventListener('click', fit);
+        get('hideInspector').addEventListener('click', () => {
+            ui.inspectorHidden = !ui.inspectorHidden;
+            get('inspectorBody').hidden = ui.inspectorHidden;
+            get('hideInspector').textContent = ui.inspectorHidden ? 'הצג' : 'הסתר';
+            get('hideInspector').setAttribute('aria-pressed', ui.inspectorHidden);
+            if (window.innerWidth > 900) get('workspace').style.setProperty('--inspector-width',
+                ui.inspectorHidden ? '115px' : get('workspace').dataset.lastInspectorWidth || '480px');
+            requestAnimationFrame(fit);
+        });
+        get('fullscreen').addEventListener('click', async () => {
+            try {
+                if (document.fullscreenElement) await document.exitFullscreen();
+                else await get('app').requestFullscreen();
+            } catch (_) {get('fullscreen').title = 'הדפדפן חסם מעבר למסך מלא.';}
+        });
+        document.addEventListener('fullscreenchange', () => {
+            get('fullscreen').textContent = document.fullscreenElement ? '⛶ צא ממסך מלא' : '⛶ מסך מלא';
+            requestAnimationFrame(fit);
+        });
+        const resizer = get('resizer'); let dragStart = null;
+        resizer.addEventListener('pointerdown', e => {
+            dragStart = {x: e.clientX, width: get('inspector').getBoundingClientRect().width};
+            resizer.setPointerCapture(e.pointerId);
+        });
+        resizer.addEventListener('pointermove', e => {
+            if (!dragStart || window.innerWidth <= 900 || ui.inspectorHidden) return;
+            const width = Math.max(310, Math.min(560, dragStart.width + dragStart.x - e.clientX));
+            get('workspace').style.setProperty('--inspector-width', width + 'px');
+            get('workspace').dataset.lastInspectorWidth = width + 'px';
+        });
+        resizer.addEventListener('pointerup', () => {dragStart = null; fit();});
+        resizer.addEventListener('keydown', e => {
+            if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+            e.preventDefault();
+            const width = get('inspector').getBoundingClientRect().width;
+            const next = Math.max(310, Math.min(560, width + (e.key === 'ArrowLeft' ? 15 : -15)));
+            get('workspace').style.setProperty('--inspector-width', next + 'px');
+            get('workspace').dataset.lastInspectorWidth = next + 'px'; fit();
+        });
+        document.addEventListener('keydown', e => {
+            const tag = document.activeElement && document.activeElement.tagName;
+            if (['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON'].includes(tag) || e.ctrlKey || e.metaKey || e.altKey) return;
+            if (e.key === 'ArrowLeft') {e.preventDefault(); goTo(ui.step - 1);}
+            if (e.key === 'ArrowRight') {e.preventDefault(); goTo(ui.step + 1);}
+        });
+        document.addEventListener('visibilitychange', () => {if (document.hidden) stop();});
+        window.addEventListener('pagehide', stop);
+        window.addEventListener('resize', () => {if (scene) applyZoom();});
+        renderAll(); setZoom(.7);
+        window.AccRecursionDiagramTest = {trace, snapshot, goTo, validate, buildTrace, ui};
+    }
+    init();
+})();
+</script>
+</body>
+</html>
