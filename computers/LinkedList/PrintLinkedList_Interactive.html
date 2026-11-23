@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>הדמיית רקורסיה — הדפסת רשימה מקושרת לפי הסדר</title>
+<style>
+:root{--page-bg:#f3f6fc;--ink:#182944;--soft:#586c88;--blue:#2563eb;--blue-light:#eaf2ff;--amber:#bb7410;--green:#087e60;--green-light:#e9f8f1;--border:#d6e1f0;--inspector-width:355px}
+*{box-sizing:border-box}body{margin:0;background:var(--page-bg);font-family:Arial,"Noto Sans Hebrew",sans-serif;color:var(--ink);font-size:16px}button,select{font:inherit}
+#app{max-width:1900px;margin:auto;padding:16px 20px 24px}header{background:#fff;border:1px solid var(--border);border-radius:18px;padding:20px 24px 16px;box-shadow:0 5px 25px #18294408}h1{margin:0 0 8px;font-size:clamp(23px,2.5vw,32px);color:#173f82}h2{margin:0 0 10px;font-size:18px}h3{font-size:15px;margin:0 0 9px;color:#254c8a}.subtitle{color:var(--soft);line-height:1.6;margin:0}.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:16px}.toolbar button,.toolbar select,.mini-btn{border:1px solid #c7d5e8;background:#fff;border-radius:10px;color:#214674;padding:9px 12px;cursor:pointer;font-weight:700}.toolbar button:hover:not(:disabled),.mini-btn:hover{background:#e8f0fc}.toolbar button:disabled{opacity:.4;cursor:not-allowed}.toolbar button.primary{background:var(--blue);border-color:var(--blue);color:#fff}.toolbar button.primary:hover{background:#1c4ec3}.toolbar button[aria-pressed=true]{background:#dbeafe;border-color:#3b82f6;color:#134b9d}.toolbar .grow{flex:1}.toolbar .stepnum{direction:ltr;unicode-bidi:isolate;font-variant-numeric:tabular-nums;font-weight:700;color:#19468d;white-space:nowrap}
+.progress-shell{height:7px;background:#e6eefa;border-radius:999px;overflow:hidden;margin-top:13px}.progress{height:100%;width:0;background:linear-gradient(90deg,#2563eb,#39a8cc);transition:width .15s}
+.event-strip{border:1px solid #c9dbf8;border-right:5px solid #3b77e1;background:#f9fcff;border-radius:14px;padding:12px 18px;margin-top:14px;display:flex;gap:18px;align-items:center;justify-content:space-between}.event-strip strong{display:block;font-size:18px;margin-bottom:5px}.event-strip p{margin:0;color:#415878;line-height:1.5}.status{white-space:nowrap;border-radius:999px;padding:7px 12px;background:#e5efff;color:#164da3;font-size:13px;font-weight:700}.status.return{background:#fff0d5;color:#935b0d}.status.print{background:#e8f9f1;color:#096a4f}
+.legend{display:flex;gap:20px;flex-wrap:wrap;align-items:center;justify-content:space-between;padding:12px 2px 8px}.legend-items{display:flex;flex-wrap:wrap;gap:17px;font-size:14px;color:#4d617e}.swatch{display:inline-block;width:29px;border-top:3px solid var(--blue);vertical-align:middle;margin-left:5px}.swatch.return{border-color:var(--amber)}.swatch.done{border-color:var(--green)}.zoomtools{display:flex;align-items:center;gap:6px}.zoomtools span{min-width:50px;text-align:center;color:#41597d;font-weight:700;font-variant-numeric:tabular-nums}.zoomtools button{padding:5px 9px}
+.workspace{display:grid;grid-template-columns:minmax(0,1fr) var(--inspector-width);gap:0;border:1px solid var(--border);border-radius:15px;background:#fff;overflow:hidden;direction:ltr;min-height:470px}.viewport-area{position:relative;min-width:0;direction:ltr;overflow:hidden;background-color:#f8fbff;background-image:radial-gradient(#d5e0ef 1px,transparent 1px);background-size:21px 21px}.viewport{width:100%;height:510px;overflow:auto;outline-offset:-3px;scrollbar-color:#bbcae2 #f4f8ff;cursor:grab}.viewport:active{cursor:grabbing}.scene-space{position:relative;overflow:visible}.scene-space svg{display:block;max-width:none;overflow:visible}.inspector{position:relative;direction:rtl;padding:18px 14px 20px;background:#fff;border-left:1px solid var(--border);overflow:auto;min-width:0}.inspector-resizer{position:absolute;top:0;bottom:0;left:0;width:8px;cursor:col-resize;background:transparent;z-index:8}.inspector-resizer:hover{background:#dbeafe}.inspector-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.inspector h2{color:#1b4d99;font-size:18px}.inspector p{margin:7px 0 13px;font-size:14px;color:#516580;line-height:1.7}.active-invocation{border:1px solid #c8d9f1;background:#f2f7ff;padding:10px 9px;border-radius:10px;font-size:13px;line-height:1.6}.csharp{direction:ltr;unicode-bidi:isolate;font:600 13px/1.6 Consolas,monospace;display:block;white-space:normal;overflow-wrap:anywhere;color:#23549d;text-align:left}.list-scroll{overflow-x:auto;overflow-y:visible;padding:14px 2px 31px;direction:ltr}.node-list{display:flex;align-items:flex-start;min-width:max-content;padding:2px 3px 8px}.linked-cell{display:flex;align-items:center;position:relative}.linked-node{position:relative;border:2px solid #adc5e7;border-radius:9px;background:#f8faff;min-width:47px;height:45px;display:flex;justify-content:center;align-items:center;color:#274a7b;font:700 21px Consolas,monospace}.linked-node.current{border-color:#2468eb;background:#dfedff;box-shadow:0 0 0 3px #c7dcff;color:#1345a6}.linked-node.done{background:#e5f8ee;border-color:#30a67d;color:#046b4e}.linked-node .marker{position:absolute;top:51px;left:50%;transform:translateX(-50%);color:#2056bd;font:700 12px Arial;white-space:nowrap}.list-arrow{font-size:24px;font-weight:bold;color:#6c88ad;padding:7px 5px}.null-node{font:700 13px Consolas,monospace;min-width:50px}.legend-note{font-size:13px;line-height:1.7;color:#50637c;border-top:1px solid #e5ebf4;padding-top:10px;margin-top:14px}.console{border:1px solid #b9d7cb;background:#f0faf6;border-radius:11px;padding:12px;margin:15px 0}.console-label{display:block;font-size:13px;color:#287255;font-weight:700;margin-bottom:5px}.output{font:700 22px/1.4 Consolas,monospace;direction:ltr;white-space:pre-wrap;min-height:31px;text-align:left;color:#124d38}.output:empty:before{content:'(empty)';font:400 13px Consolas,monospace;color:#81968e}.code-section{background:#f7f9fd;border:1px solid #dbe4ef;border-radius:11px;padding:11px 7px;margin-top:12px}.code-section summary{color:#204a8d;font-weight:700;cursor:pointer;padding:1px 6px}.code-lines{margin:10px 0 0;direction:ltr;text-align:left;overflow-x:auto;font:13px/1.65 Consolas,"Courier New",monospace;color:#243754}.code-line{white-space:pre;display:block;padding:1px 6px;border-radius:5px;min-height:20px}.code-line.current{background:#dfeafd;color:#103d8b;font-weight:bold}.code-line .line-num{display:inline-block;width:18px;color:#8e9cae;text-align:right;margin-right:10px;font-size:11px;user-select:none}
+svg text{font-family:Arial,sans-serif}button:focus-visible,select:focus-visible,.viewport:focus-visible,.inspector-resizer:focus-visible{outline:3px solid #f0ab26;outline-offset:2px}
+#app:fullscreen{background:#f3f6fc;max-width:none;height:100vh;overflow:auto;padding:15px}#app:fullscreen .viewport{height:calc(100vh - 290px);min-height:370px}#app:fullscreen .workspace{min-height:0}
+@media(max-width:900px){#app{padding:9px}.workspace{display:flex;flex-direction:column}.viewport-area{order:2}.inspector{order:1;border-left:none;border-bottom:1px solid var(--border);overflow:visible}.inspector-resizer{display:none}.viewport{height:435px}.event-strip{flex-wrap:wrap}.toolbar .grow{display:none}}
+@media print{body{background:#fff}#app{padding:0}.toolbar,.zoomtools,.inspector-resizer{display:none!important}header,.workspace{box-shadow:none;break-inside:avoid}.workspace{display:block}.viewport{height:auto!important;overflow:visible}.scene-space{transform:scale(.72);transform-origin:top left}.inspector{border:none}.viewport-area{min-height:260px} .code-section{break-inside:avoid}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+  <h1>רקורסיה על רשימה מקושרת — הדפסה לפי הסדר</h1>
+  <p class="subtitle"><b>תרגיל A26.</b> כל איבר מודפס <b>לפני</b> הקריאה הרקורסיבית לאיבר הבא. הקוד מדפיס את <span dir="ltr">1 2 3 4</span>, ולאחר מכן הקריאות מסתיימות בסדר הפוך.</p>
+  <div class="toolbar" aria-label="פקדי מעבר בין צעדים">
+    <button id="prev" aria-label="הצעד הקודם">◀ הקודם</button>
+    <button id="next" class="primary" aria-label="הצעד הבא">הבא ▶</button>
+    <button id="play" aria-label="הפעל הדגמה אוטומטית">▶ הפעלה</button>
+    <select id="speed" aria-label="מהירות הפעלה"><option value="1900">איטי</option><option value="1250" selected>רגיל</option><option value="700">מהיר</option></select>
+    <button id="reset" aria-label="התחל מההתחלה">↺ איפוס</button>
+    <span class="grow"></span>
+    <button id="treeMode" aria-pressed="true">עץ הקריאות</button>
+    <button id="fullscreen" aria-label="הצג במסך מלא">⛶ מסך מלא</button>
+    <span id="stepnum" class="stepnum">1 / 19</span>
+  </div>
+  <div class="progress-shell" role="progressbar" aria-label="התקדמות בהדמיה" aria-valuemin="1" aria-valuemax="19" aria-valuenow="1" id="progressbar"><div id="progress" class="progress"></div></div>
+  <section class="event-strip" aria-live="polite" aria-atomic="true">
+    <div><strong id="eventTitle">מתחילים בקריאה הראשונה</strong><p id="eventText">הפונקציה מקבלת הפניה לאיבר הראשון ברשימה.</p></div><span id="status" class="status">תחילת קריאה</span>
+  </section>
+</header>
+<div class="legend">
+  <div class="legend-items"><span><i class="swatch"></i> קריאה רקורסיבית</span><span><i class="swatch return"></i> חזרה לפונקציה הקוראת (void)</span><span><i class="swatch done"></i> קריאה שהסתיימה</span></div>
+  <div class="zoomtools"><button class="mini-btn" id="zoomOut" aria-label="הקטן">−</button><span id="zoomPct">100%</span><button class="mini-btn" id="zoomIn" aria-label="הגדל">+</button><button class="mini-btn" id="fit">התאם</button></div>
+</div>
+<div id="workspace" class="workspace">
+  <div class="viewport-area">
+    <div id="viewport" class="viewport" tabindex="0" aria-label="תרשים הקריאות הרקורסיביות, ניתן לגלול"><div id="sceneSpace" class="scene-space"><svg id="graph" role="img" aria-label="תרשים קריאות וחזרות" xmlns="http://www.w3.org/2000/svg"></svg></div></div>
+  </div>
+  <aside id="inspector" class="inspector" aria-label="מצב הרשימה והקוד">
+    <div id="resizer" class="inspector-resizer" role="separator" tabindex="0" aria-label="שנה את רוחב חלונית הרשימה" aria-orientation="vertical"></div>
+    <div class="inspector-head"><h2>הרשימה המקושרת</h2><button id="hideInspector" class="mini-btn" aria-pressed="false">הסתר</button></div>
+    <div id="inspectorBody">
+      <p>החץ מסמן קישור לאיבר הבא. המסגרת הכחולה מסמנת את הפרמטר <code dir="ltr">node</code> בקריאה הפעילה.</p>
+      <div class="active-invocation">הקריאה הפעילה: <span id="activeSignature" class="csharp"></span></div>
+      <div class="list-scroll"><div id="listNodes" class="node-list" aria-label="1 מצביע ל 2, 2 ל 3, 3 ל 4, 4 מצביע ל null"></div></div>
+      <div class="console"><span class="console-label">פלט עד הצעד הנוכחי — Console.Write</span><div id="output" class="output" aria-live="off"></div></div>
+      <p id="inspectorHint" class="legend-note"></p>
+      <details class="code-section" open><summary>קוד C# המקורי</summary><div id="codeLines" class="code-lines"></div></details>
+    </div>
+  </aside>
+</div>
+</div>
+<script>
+'use strict';
+(function(){
+    const VALUES=[1,2,3,4];
+    const SOURCE=[
+      'public static void PrintLinkedListInOrder(Node node)',
+      '{',
+      '    if (node == null)',
+      '    {',
+      '        return;',
+      '    }',
+      '    Console.Write(node.GetValue() + " ");',
+      '    PrintLinkedListInOrder(node.GetNext());',
+      '}'
+    ];
+    const NS='http://www.w3.org/2000/svg';
+    const get=id=>document.getElementById(id);
+    function svgEl(name,attrs,text){let e=document.createElementNS(NS,name);for(const [k,v] of Object.entries(attrs||{})) e.setAttribute(k,String(v));if(text!==undefined)e.textContent=text;return e;}
+    function add(parent,name,attrs,text){let e=svgEl(name,attrs,text);parent.appendChild(e);return e;}
+    function buildTrace(values){
+        if(!Array.isArray(values)||values.some(v=>!Number.isFinite(v)))throw new Error('A list of finite numeric node values is required');
+        const frames=[],events=[];
+        // Instrumentation is intentionally faithful to the exact C# order: guard, print, call, return.
+        function visit(index,parentId){
+            const id='f'+frames.length,frame={id,index,parentId,number:frames.length+1,label:index===values.length?'null':String(values[index])};frames.push(frame);
+            if(parentId===null)events.push({type:'start',node:id,line:0});
+            else events.push({type:'call',from:parentId,to:id,line:7});
+            if(index===values.length){events.push({type:'base',node:id,line:4});}
+            else{events.push({type:'guard',node:id,line:2});events.push({type:'print',node:id,value:values[index],line:6});visit(index+1,id);}
+            if(parentId===null)events.push({type:'finish',node:id,line:8});
+            else events.push({type:'return',from:id,to:parentId,line:index===values.length?4:8});
+        }
+        visit(0,null);
+        return {frames,events};
+    }
+    const trace=buildTrace(VALUES),byId=new Map(trace.frames.map(f=>[f.id,f]));
+        const ui={step:0,mode:'tree',zoom:1,playing:false,timer:null,inspectorHidden:false,autoCollapse:false,manuallyCollapsed:new Set(),expandedWhenAuto:new Set()};
+    let scene=null;
+    function snapshot(step){
+        const entered=new Set(),completed=new Set(),calls=new Set(),returns=new Set(),printed=[],stack=[];
+        let active=null,finished=false;
+        for(let i=0;i<=step;i++){
+            const e=trace.events[i];
+            switch(e.type){
+              case 'start': entered.add(e.node);stack.push(e.node);active=e.node;break;
+              case 'call':entered.add(e.to);calls.add(e.from+'-'+e.to);stack.push(e.to);active=e.to;break;
+              case 'guard':case 'base':active=e.node;break;
+              case 'print':printed.push(e.value);active=e.node;break;
+              case 'return':completed.add(e.from);returns.add(e.from+'-'+e.to);if(stack[stack.length-1]!==e.from)throw new Error('Stack mismatch '+e.from);stack.pop();active=e.to;break;
+              case 'finish':completed.add(e.node);if(stack[stack.length-1]!==e.node)throw new Error('Root finish mismatch');stack.pop();active=e.node;finished=true;break;
+            }
+        }
+        return {entered,completed,calls,returns,printed,stack,active,finished,event:trace.events[step]};
+    }
+    function getPath(frame){const result=[];for(let f=frame;f;f=byId.get(f.parentId))result.unshift(f.id);return result;}
+    function layoutFull(){const positions=new Map();const w=259,h=128,gap=91,padding=52;trace.frames.forEach((f,i)=>positions.set(f.id,{x:padding+i*(w+gap),y:116,w,h}));return {positions,width:padding*2+trace.frames.length*w+(trace.frames.length-1)*gap,height:395};}
+    const full=layoutFull();
+    function layoutFocus(s){
+        const frame=byId.get(s.active),parent=frame.parentId?byId.get(frame.parentId):null;
+        const child=trace.frames.find(f=>f.parentId===frame.id)||null;
+        const positions=new Map();
+        if(parent)positions.set(parent.id,{x:34,y:138,w:278,h:146});
+        positions.set(frame.id,{x:384,y:113,w:410,h:190});
+        if(child)positions.set(child.id,{x:898,y:138,w:301,h:146});
+        return {positions,width:child?1265:parent?852:855,height:400,previewChild:child&&!s.entered.has(child.id)?child.id:null};
+    }
+    function drawDefs(svg){const defs=add(svg,'defs');for(const spec of [{id:'callHead',color:'#397ce8'},{id:'returnHead',color:'#c38324'},{id:'previewHead',color:'#a8b9cf'}]){const m=add(defs,'marker',{id:spec.id,viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:7,markerHeight:7,orient:'auto-start-reverse'});add(m,'path',{d:'M 1 1 L 9 5 L 1 9 Z',fill:spec.color});}}
+    function drawEdge(svg,a,b,kind,{newly=false,preview=false,dim=false}={}){
+        if(!a||!b)return;
+        const outbound=kind==='call';
+        const x1=outbound?a.x+a.w:b.x, x2=outbound?b.x:a.x+a.w;
+        const y1=outbound?a.y+a.h*.39:b.y+b.h*.75;
+        const y2=outbound?b.y+b.h*.39:a.y+a.h*.75;
+        const dx=Math.max(22,Math.abs(x2-x1)*.41),direction=outbound?1:-1;
+        const path=`M ${x1} ${y1} C ${x1+direction*dx} ${y1+(outbound?-11:20)} ${x2-direction*dx} ${y2+(outbound?-11:20)} ${x2} ${y2}`;
+        add(svg,'path',{d:path,fill:'none',stroke:preview?'#a9bace':outbound?'#377fe7':'#cb8224','stroke-width':newly?4.5:3,opacity:dim?'.35':preview?'.85':1,'stroke-dasharray':preview?'8 7':'none','marker-end':`url(#${preview?'previewHead':outbound?'callHead':'returnHead'})`});
+        if(!outbound){const lx=(x1+x2)/2,ly=(y1+y2)/2+22;add(svg,'rect',{x:lx-30,y:ly-15,width:60,height:28,rx:10,fill:'#fff2d9',stroke:'#cb8d30','stroke-width':1.6});add(svg,'text',{x:lx,y:ly+4,'text-anchor':'middle','font-size':16,'font-weight':700,fill:'#85530d',direction:'ltr'},'void');}
+    }
+    function textLine(svg,x,y,t,{size=16,color='#304564',weight=400,mono=false,anchor='start',direction='ltr'}={}){return add(svg,'text',{x,y,'font-size':size,fill:color,'font-weight':weight,'text-anchor':anchor,direction,'unicode-bidi':'plaintext','font-family':mono?'Consolas,monospace':'Arial,sans-serif'},t);}
+    function renderFrame(svg,frame,rect,s,preview,isFocus){
+        const completed=s.completed.has(frame.id),active=s.active===frame.id && !s.finished,stack=s.stack.includes(frame.id);
+        const isBase=frame.index===VALUES.length;
+        const border=preview?'#9eafc7':active?'#2368ea':completed?'#2b9c79':stack?'#6b9af3':'#b9cade';
+        const fill=preview?'#f7f9fc':active?'#e9f2ff':completed?'#eaf9f1':stack?'#f3f7ff':'#fff';
+        add(svg,'rect',{x:rect.x,y:rect.y,width:rect.w,height:rect.h,rx:15,fill,stroke:border,'stroke-width':active?3.5:2,'stroke-dasharray':preview?'9 6':'none'});
+        const x=rect.x+17, titleFont=isFocus?(rect.w>=350?18:14):15;
+        textLine(svg,x,rect.y+27,`#${frame.number} PrintLinkedListInOrder`,{size:titleFont,weight:700,color:preview?'#8797ac':'#16468b',mono:true});
+        textLine(svg,x,rect.y+53,`node → ${preview?'(הקריאה הבאה)':isBase?'null':'Node #'+(frame.index+1)+' (value '+frame.label+')'}`,{size:isFocus?16:14,weight:600,color:'#344e75',mono:!preview});
+        if(preview){textLine(svg,x,rect.y+84,'UPCOMING · טרם בוצעה קריאה',{size:13,color:'#778ba4',weight:700});return;}
+        if(isBase){textLine(svg,x,rect.y+82,'node == null · תנאי עצירה',{size:isFocus?16:13,color:'#7359a0',weight:700});}
+        else{textLine(svg,x,rect.y+82,`node.GetValue() = ${frame.label}`,{size:isFocus?16:14,color:'#506888',mono:true});}
+        if(completed)textLine(svg,x,rect.y+rect.h-19,'✓ הסתיימה · return (void)',{size:14,color:'#087a5e',weight:700});
+        else if(active)textLine(svg,x,rect.y+rect.h-19,'● הקריאה הפעילה',{size:14,color:'#1559c3',weight:700});
+        else if(stack)textLine(svg,x,rect.y+rect.h-19,'ממתינה לחזרת הקריאה הבאה',{size:13,color:'#607695'});
+        else textLine(svg,x,rect.y+rect.h-19,'ממתינה לביצוע',{size:13,color:'#697d96'});
+        if(isFocus&&rect.w>=350&&!isBase&&!completed){textLine(svg,x,rect.y+rect.h-43,'סדר: בדיקת תנאי ← הדפסה ← רקורסיה',{size:14,color:'#4a648d'});}
+    }
+    function renderGraph(s){
+        scene=ui.mode==='focus'?layoutFocus(s):full;
+        let collapsed=new Set();
+        if(ui.mode==='tree'){
+            for(const f of trace.frames){if(f.index===0)continue;
+                if(ui.manuallyCollapsed.has(f.id)||ui.autoCollapse&&s.completed.has(f.id)&&!ui.expandedWhenAuto.has(f.id)&&f.index<VALUES.length-1)collapsed.add(f.id);
+            }
+        }
+        const hidden=new Set();
+        for(const f of trace.frames){let p=f.parentId;while(p){if(collapsed.has(p)){hidden.add(f.id);break;}p=byId.get(p).parentId;}}
+        const svg=get('graph');svg.replaceChildren();svg.setAttribute('viewBox',`0 0 ${scene.width} ${scene.height}`);drawDefs(svg);
+        const visible=(f)=>scene.positions.has(f.id)&&!hidden.has(f.id)&&(s.entered.has(f.id)||(ui.mode==='focus'&&scene.previewChild===f.id));
+        for(const frame of trace.frames){if(!frame.parentId||!visible(frame))continue;
+            const parent=byId.get(frame.parentId);if(!visible(parent))continue;
+            const key=parent.id+'-'+frame.id,rev=frame.id+'-'+parent.id,prev=scene.previewChild===frame.id;
+            if(s.calls.has(key)||prev)drawEdge(svg,scene.positions.get(parent.id),scene.positions.get(frame.id),'call',{preview:prev,newly:s.event.type==='call'&&s.event.to===frame.id,dim:s.completed.has(frame.id)});
+            if(s.returns.has(rev))drawEdge(svg,scene.positions.get(parent.id),scene.positions.get(frame.id),'return',{newly:s.event.type==='return'&&s.event.from===frame.id});
+        }
+        for(const frame of trace.frames){if(!visible(frame))continue;
+            renderFrame(svg,frame,scene.positions.get(frame.id),s,scene.previewChild===frame.id,ui.mode==='focus');
+            if(collapsed.has(frame.id)){const r=scene.positions.get(frame.id),remaining=trace.frames.filter(f=>f.index>frame.index&&s.entered.has(f.id)).length;
+                const b=add(svg,'g',{'data-collapse':frame.id});add(b,'rect',{x:r.x+r.w-48,y:r.y+8,width:37,height:27,rx:7,fill:'#fff',stroke:'#80a7be'});textLine(b,r.x+r.w-29,r.y+27,'+', {size:20,weight:700,anchor:'middle',color:'#266398'}); // clickable via JS listener on group
+                b.style.cursor='pointer';b.setAttribute('role','button');b.setAttribute('aria-label','הרחב ענף');b.addEventListener('click',()=>{ui.manuallyCollapsed.delete(frame.id);ui.expandedWhenAuto.add(frame.id);renderAll(false);});
+                textLine(svg,r.x+17,r.y+r.h-40,`${remaining} קריאות מוסתרות`,{size:12,color:'#8b6c23'});
+            }else if(ui.mode==='tree'&&s.completed.has(frame.id)&&frame.index<VALUES.length-1&&frame.index>0){
+                const r=scene.positions.get(frame.id);const g=add(svg,'g');add(g,'rect',{x:r.x+r.w-40,y:r.y+8,width:30,height:27,rx:6,fill:'#fff',stroke:'#96bcb1'});textLine(g,r.x+r.w-25,r.y+27,'−',{size:18,weight:700,anchor:'middle',color:'#188063'});g.style.cursor='pointer';g.addEventListener('click',()=>{ui.manuallyCollapsed.add(frame.id);renderAll(false);});
+            }
+        }
+        if(ui.mode==='focus'&&!scene.previewChild&&byId.get(s.active).index===VALUES.length){textLine(svg,905,216,'תנאי עצירה — אין קריאה נוספת',{size:18,color:'#6b588c',weight:700});}
+        applyZoom();
+    }
+    function applyZoom(){if(!scene)return;const space=get('sceneSpace'),svg=get('graph');space.style.width=(scene.width*ui.zoom)+'px';space.style.height=(scene.height*ui.zoom)+'px';svg.setAttribute('width',scene.width*ui.zoom);svg.setAttribute('height',scene.height*ui.zoom);get('zoomPct').textContent=Math.round(ui.zoom*100)+'%';}
+    function focusOnActive(s){const rect=scene.positions.get(s.active);if(!rect)return;const view=get('viewport');const midX=(rect.x+rect.w/2)*ui.zoom,midY=(rect.y+rect.h/2)*ui.zoom;view.scrollLeft=Math.max(0,midX-view.clientWidth/2);view.scrollTop=Math.max(0,midY-view.clientHeight/2);}
+    function describe(s){
+        const e=s.event;const frame=byId.get(e.node||(e.to&&e.type==='call'?e.to:e.from));
+        switch(e.type){
+            case 'start':return ['קריאה ראשונה לפונקציה','הפרמטר node מצביע לראש הרשימה, שבו נמצא הערך 1.','תחילת קריאה','',0];
+            case 'guard':return [`בודקים אם node הוא null`,`הפרמטר מצביע לאיבר ${frame.label}, לכן התנאי שקרי וממשיכים לפקודת ההדפסה.`,'בדיקת תנאי','',2];
+            case 'print':return [`מדפיסים את הערך ${e.value}`,`Console.Write מדפיסה ${e.value} ורווח. ההדפסה מתרחשת לפני הקריאה הרקורסיבית.`,'הדפסה','print',6];
+            case 'call':{const from=byId.get(e.from),to=byId.get(e.to);return ['קריאה רקורסיבית לאיבר הבא',`מפעילים PrintLinkedListInOrder(node.GetNext()) מתוך איבר ${from.label}. בקריאה החדשה node מצביע ${to.label==='null'?'ל־null':'לאיבר '+to.label}.`,'קריאה רקורסיבית','',7];}
+            case 'base':return ['הגענו לתנאי העצירה',`כעת node == null. פקודת return; מסיימת את הקריאה ללא הדפסה וללא ערך מוחזר.`,'תנאי עצירה','return',4];
+            case 'return':{const child=byId.get(e.from),parent=byId.get(e.to);return ['חוזרים אל הפונקציה שקראה',`הקריאה עם node = ${child.label} הסתיימה. חוזרים אל הקריאה עם node = ${parent.label}. אין ערך מוחזר, כי הפונקציה היא void.`,'חזרה (void)','return',child.label==='null'?4:8];}
+            case 'finish':return ['כל הקריאות הסתיימו',`הקריאה הראשונה הסתיימה. הפלט הסופי הוא: ${VALUES.join(' ')}.`, 'הסתיים','print',8];
+        }
+    }
+    function renderInspector(s){const active=byId.get(s.active),isBase=active.index===VALUES.length;
+        get('activeSignature').textContent=`PrintLinkedListInOrder(node → ${active.label})`;
+        const list=get('listNodes');list.replaceChildren();for(let i=0;i<=VALUES.length;i++){
+            const wrap=document.createElement('span');wrap.className='linked-cell';const cell=document.createElement('span');cell.className='linked-node'+(i===active.index?' current':i<active.index?' done':'')+(i===VALUES.length?' null-node':'');cell.textContent=i===VALUES.length?'null':String(VALUES[i]);
+            if(i===active.index){let m=document.createElement('span');m.className='marker';m.textContent='↑ node';cell.appendChild(m);}
+            wrap.appendChild(cell);if(i<VALUES.length){const arrow=document.createElement('span');arrow.className='list-arrow';arrow.textContent='→';wrap.appendChild(arrow);}list.appendChild(wrap);
+        }
+        get('output').textContent=s.printed.length?s.printed.join(' ')+' ':'';
+        get('inspectorHint').textContent=isBase?'הפרמטר הוא null. התנאי מתקיים, ולכן לא ניגשים ל־GetValue() ולא קוראים שוב לפונקציה.':s.completed.has(active.id)?'הקריאה הסתיימה. אין שינוי נוסף בפלט.':'כל קריאה מקבלת הפניה לאיבר הבא באותה רשימה; הרשימה עצמה אינה משתנה.';
+        const line=describe(s)[4];document.querySelectorAll('.code-line').forEach(el=>el.classList.toggle('current',Number(el.dataset.line)===line));
+    }
+    function renderAll(center=true){const s=snapshot(ui.step),desc=describe(s);
+        get('eventTitle').textContent=`שלב ${ui.step+1}: ${desc[0]}`;get('eventText').textContent=desc[1];get('status').textContent=desc[2];get('status').className='status '+desc[3];
+        get('stepnum').textContent=`${ui.step+1} / ${trace.events.length}`;get('progressbar').setAttribute('aria-valuenow',ui.step+1);get('progressbar').setAttribute('aria-valuemax',trace.events.length);get('progress').style.width=(100*(ui.step+1)/trace.events.length)+'%';
+        get('prev').disabled=ui.step===0;get('next').disabled=ui.step===trace.events.length-1;
+        get('treeMode').setAttribute('aria-pressed',true);
+        renderGraph(s);renderInspector(s);if(center)focusOnActive(s);
+    }
+    function stop(){if(ui.timer!==null){clearInterval(ui.timer);ui.timer=null;}ui.playing=false;get('play').textContent='▶ הפעלה';get('play').setAttribute('aria-label','הפעל הדגמה אוטומטית');}
+    function goTo(step,auto=false){if(!auto)stop();ui.step=Math.max(0,Math.min(trace.events.length-1,step));renderAll(true);if(ui.step===trace.events.length-1)stop();}
+    function togglePlayback(){if(ui.playing){stop();return;}if(ui.step===trace.events.length-1)ui.step=0;ui.playing=true;get('play').textContent='⏸ עצור';get('play').setAttribute('aria-label','עצור הדגמה אוטומטית');goTo(ui.step,true);ui.timer=setInterval(()=>{if(ui.step>=trace.events.length-1){stop();return;}goTo(ui.step+1,true);},Number(get('speed').value));}
+    function setZoom(next){ui.zoom=Math.max(.75,Math.min(1.75,Math.round(next*100)/100));applyZoom();focusOnActive(snapshot(ui.step));}
+    function fit(){if(!scene)return;const view=get('viewport'),desired=Math.min((view.clientWidth-26)/scene.width,(view.clientHeight-26)/scene.height);const limited=desired<.75;get('fit').title=limited?'התרשים גדול מדי לתצוגה מלאה; ניתן לגלול כדי להגיע לכל הקריאות.':'';setZoom(Math.max(.75,Math.min(1.75,desired)));}
+    function initCode(){const target=get('codeLines');SOURCE.forEach((line,i)=>{let row=document.createElement('div');row.className='code-line';row.dataset.line=i;const num=document.createElement('span');num.className='line-num';num.textContent=i+1;row.append(num,document.createTextNode(line));target.append(row);});}
+    function validate(){const events=trace.events,frames=trace.frames;
+        if(frames.length!==5||frames[4].label!=='null'||events.length!==19||events.filter(e=>e.type==='print').length!==4||events.filter(e=>e.type==='call').length!==4||events.filter(e=>e.type==='return').length!==4)throw new Error('Trace structural assertion failed');
+        for(let i=0;i<events.length;i++){let s=snapshot(i);if(s.printed.length!==events.slice(0,i+1).filter(e=>e.type==='print').length)throw new Error('Output snapshot mismatch');if(s.printed.join(' ')!==VALUES.slice(0,s.printed.length).join(' '))throw new Error('Unexpected print order');}
+        if(snapshot(0).printed.length!==0||snapshot(events.length-1).printed.join(' ')!=='1 2 3 4'||!snapshot(events.length-1).finished)throw new Error('Final output assertion failed');
+        for(const sample of [[],[7],[4,9],[-9,-3,-8],[5,5,5]]){
+            const caseTrace=buildTrace(sample);
+            const output=caseTrace.events.filter(e=>e.type==='print').map(e=>e.value);
+            if(output.join(',')!==sample.join(',')||caseTrace.frames.length!==sample.length+1||caseTrace.events.length!==4*sample.length+3)throw new Error('Generic linked list test failed');
+        }
+        return true;
+    }
+    function init(){validate();initCode();get('next').addEventListener('click',()=>goTo(ui.step+1));get('prev').addEventListener('click',()=>goTo(ui.step-1));get('reset').addEventListener('click',()=>goTo(0));get('play').addEventListener('click',togglePlayback);
+        get('speed').addEventListener('change',()=>{if(ui.playing){stop();togglePlayback();}});
+        get('treeMode').addEventListener('click',()=>{stop();ui.mode='tree';renderAll(true);fit();});
+        get('zoomIn').addEventListener('click',()=>setZoom(ui.zoom+.1));get('zoomOut').addEventListener('click',()=>setZoom(ui.zoom-.1));get('fit').addEventListener('click',fit);
+        get('hideInspector').addEventListener('click',()=>{ui.inspectorHidden=!ui.inspectorHidden;get('inspectorBody').hidden=ui.inspectorHidden;get('hideInspector').textContent=ui.inspectorHidden?'הצג':'הסתר';get('hideInspector').setAttribute('aria-pressed',ui.inspectorHidden);if(window.innerWidth>900){get('workspace').style.setProperty('--inspector-width',ui.inspectorHidden?'115px':(get('workspace').dataset.lastInspectorWidth||'355px'));}requestAnimationFrame(()=>{fit();});});
+        get('fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await get('app').requestFullscreen();}catch(error){get('fullscreen').title='הדפדפן לא איפשר מעבר למסך מלא.';console.warn('Fullscreen unavailable:',error);}});
+        document.addEventListener('fullscreenchange',()=>{get('fullscreen').textContent=document.fullscreenElement?'⛶ צא ממסך מלא':'⛶ מסך מלא';requestAnimationFrame(fit);});
+        const resizer=get('resizer');let dragStart=null;resizer.addEventListener('pointerdown',e=>{dragStart={x:e.clientX,width:get('inspector').getBoundingClientRect().width};resizer.setPointerCapture(e.pointerId);});
+        resizer.addEventListener('pointermove',e=>{if(!dragStart||window.innerWidth<=900||ui.inspectorHidden)return;const newWidth=Math.max(280,Math.min(540,dragStart.width+dragStart.x-e.clientX));get('workspace').style.setProperty('--inspector-width',newWidth+'px');get('workspace').dataset.lastInspectorWidth=newWidth+'px';});
+        resizer.addEventListener('pointerup',()=>{dragStart=null;fit();});resizer.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();const current=get('inspector').getBoundingClientRect().width;const next=Math.max(280,Math.min(540,current+(e.key==='ArrowLeft'?15:-15)));get('workspace').style.setProperty('--inspector-width',next+'px');get('workspace').dataset.lastInspectorWidth=next+'px';fit();}});
+        document.addEventListener('keydown',e=>{const tag=document.activeElement?.tagName;if(['INPUT','TEXTAREA','SELECT','BUTTON'].includes(tag)||document.activeElement===get('viewport')||e.ctrlKey||e.metaKey||e.altKey)return;if(e.key==='ArrowLeft'){e.preventDefault();goTo(ui.step-1);}if(e.key==='ArrowRight'){e.preventDefault();goTo(ui.step+1);}});
+        window.addEventListener('resize',()=>{if(scene){applyZoom();}});document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});window.addEventListener('pagehide',stop);
+        renderAll(true);fit();window.RecursionDiagramTest={trace,snapshot,goTo,validate,buildTrace,ui};
+    }
+    init();
+})();
+</script>
+</body>
+</html>
