@@ -1,5 +1,5 @@
-import {offsets,cellLines,cellStyle} from './table-model.js?v=20261121-tables';
-import {TEXT_FONT_FAMILY} from './text-font.js?v=20261121-tables';
+import {offsets,cellLines,cellStyle} from './table-model.js?v=20261121-variation-fields';
+import {TEXT_FONT_FAMILY} from './text-font.js?v=20261121-variation-fields';
 
 export function gridPath(xs,ys) {
     const w=xs.at(-1), h=ys.at(-1);

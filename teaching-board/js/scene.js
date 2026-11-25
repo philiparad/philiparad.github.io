@@ -1,16 +1,16 @@
-import {renderTable} from './table-renderer.js?v=20261121-tables';
-import {renderVariationTable} from './variation-table-renderer.js?v=20261121-tables';
-import {backgroundOrder} from './background-lock.js?v=20261121-tables';
-import {imageCorners,imageSVGTransform} from './image-geometry.js?v=20261121-tables';
-import { backgroundOptions } from './background-options.js?v=20261121-tables';
-import {drawGraphMarker} from './graph-marker.js?v=20261121-tables';
-import {drawEquationText,textLayoutMetrics} from './inline-equation.js?v=20261121-tables';
-import {paragraphRuns} from './rich-text.js?v=20261121-tables';
-import { pressurePathD } from './pressure.js?v=20261121-tables';
-import { drawPreset } from './shapes.js?v=20261121-tables';
-import { styleStroke, STROKED_TYPES } from './line-style.js?v=20261121-tables';
-import { strokePathD, naturalPathD } from './ink.js?v=20261121-tables';
-import { arcPath, arcPoint, curvePath } from './geometry.js?v=20261121-tables';
+import {renderTable} from './table-renderer.js?v=20261121-variation-fields';
+import {renderVariationTable} from './variation-table-renderer.js?v=20261121-variation-fields';
+import {backgroundOrder} from './background-lock.js?v=20261121-variation-fields';
+import {imageCorners,imageSVGTransform} from './image-geometry.js?v=20261121-variation-fields';
+import { backgroundOptions } from './background-options.js?v=20261121-variation-fields';
+import {drawGraphMarker} from './graph-marker.js?v=20261121-variation-fields';
+import {drawEquationText,textLayoutMetrics} from './inline-equation.js?v=20261121-variation-fields';
+import {paragraphRuns} from './rich-text.js?v=20261121-variation-fields';
+import { pressurePathD } from './pressure.js?v=20261121-variation-fields';
+import { drawPreset } from './shapes.js?v=20261121-variation-fields';
+import { styleStroke, STROKED_TYPES } from './line-style.js?v=20261121-variation-fields';
+import { strokePathD, naturalPathD } from './ink.js?v=20261121-variation-fields';
+import { arcPath, arcPoint, curvePath } from './geometry.js?v=20261121-variation-fields';
 const ns='http://www.w3.org/2000/svg';
 export function svgEl(tag,attrs={}){const n=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,String(v));return n;}
 export function textObjectHeight(item){return ['text','note'].includes(item.type)?Math.max(item.h||1,textLayoutMetrics(item,paragraphRuns(item)).height):item.h||1;}

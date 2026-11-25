@@ -1,4 +1,4 @@
-import { A4, pageRect } from './pages.js?v=20261121-tables';
+import { A4, pageRect } from './pages.js?v=20261121-variation-fields';
 
 /** Prepare the entire import without changing the document. */
 export function planA4Import(board,pages){

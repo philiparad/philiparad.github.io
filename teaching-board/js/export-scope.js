@@ -1,7 +1,7 @@
-import { printPageIndexes } from './print-page-selection.js?v=20261121-tables';
-import { el, btn, field } from './ui.js?v=20261121-tables';
-import { bounds, union } from './scene.js?v=20261121-tables';
-import { visualBounds } from './visibility.js?v=20261121-tables';
+import { printPageIndexes } from './print-page-selection.js?v=20261121-variation-fields';
+import { el, btn, field } from './ui.js?v=20261121-variation-fields';
+import { bounds, union } from './scene.js?v=20261121-variation-fields';
+import { visualBounds } from './visibility.js?v=20261121-variation-fields';
 
 export function viewRegion(viewport,width,height){
  return {x:-viewport.x/viewport.zoom,y:-viewport.y/viewport.zoom,w:width/viewport.zoom,h:height/viewport.zoom};

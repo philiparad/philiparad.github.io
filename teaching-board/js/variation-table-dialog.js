@@ -1,5 +1,5 @@
-import {el} from './ui.js?v=20261121-tables';
-import {createVariationSpec,analyzeVariation,coordinate,variationKey} from './variation-table-model.js?v=20261121-tables';
+import {el} from './ui.js?v=20261121-variation-fields';
+import {createVariationSpec,analyzeVariation,coordinate,variationKey} from './variation-table-model.js?v=20261121-variation-fields';
 
 const GROUPS=[
     ['zeros','אפסי הנגזרת הראשונה'],

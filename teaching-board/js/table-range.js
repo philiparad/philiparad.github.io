@@ -1,4 +1,4 @@
-import {TABLE_LIMITS,tableDimensions,changeAxis} from './table-model.js?v=20261121-tables';
+import {TABLE_LIMITS,tableDimensions,changeAxis} from './table-model.js?v=20261121-variation-fields';
 
 export function selectedRange(t,r,c,scope) {
     return {firstRow:scope==='column'||scope==='table'?0:r,lastRow:scope==='column'||scope==='table'?t.rows-1:r,

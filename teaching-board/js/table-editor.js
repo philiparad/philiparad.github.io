@@ -1,13 +1,13 @@
-import {el,notify} from './ui.js?v=20261121-tables';
-import {svgEl} from './scene.js?v=20261121-tables';
-import {pageRect,A4} from './pages.js?v=20261121-tables';
-import {toScreen,toWorld} from './viewport.js?v=20261121-tables';
-import {TEXT_FONT_FAMILY} from './text-font.js?v=20261121-tables';
+import {el,notify} from './ui.js?v=20261121-variation-fields';
+import {svgEl} from './scene.js?v=20261121-variation-fields';
+import {pageRect,A4} from './pages.js?v=20261121-variation-fields';
+import {toScreen,toWorld} from './viewport.js?v=20261121-variation-fields';
+import {TEXT_FONT_FAMILY} from './text-font.js?v=20261121-variation-fields';
 import {createTable,tableGeometry,validateTableItem,offsets,cellRect,cellAt,tablePoint,cellStyle,
-    fitTable,changeAxis,dividerDelta,moveDivider,PAGE_MARGIN,TABLE_LIMITS} from './table-model.js?v=20261121-tables';
-import {parseTSV,pasteRange,selectedRange} from './table-range.js?v=20261121-tables';
-import {TablePicker} from './table-picker.js?v=20261121-tables';
-import {tableOptions} from './table-actions.js?v=20261121-tables';
+    fitTable,changeAxis,dividerDelta,moveDivider,PAGE_MARGIN,TABLE_LIMITS} from './table-model.js?v=20261121-variation-fields';
+import {parseTSV,pasteRange,selectedRange} from './table-range.js?v=20261121-variation-fields';
+import {TablePicker} from './table-picker.js?v=20261121-variation-fields';
+import {tableOptions} from './table-actions.js?v=20261121-variation-fields';
 
 export class TableEditor {
     constructor(editor) {

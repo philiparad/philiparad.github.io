@@ -1,4 +1,4 @@
-import {analyzeVariation,validateVariationSpec} from './variation-table-model.js?v=20261121-tables';
+import {analyzeVariation,validateVariationSpec} from './variation-table-model.js?v=20261121-variation-fields';
 
 export function variationLayout(spec,w=900,h=310){
     const count=2*new Set(spec.points.map(p=>p.x).concat(

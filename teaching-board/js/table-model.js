@@ -1,5 +1,5 @@
-import {equationLines, firstStrongTextDirection} from './inline-equation.js?v=20261121-tables';
-import {textMeasurer} from './text-measure.js?v=20261121-tables';
+import {equationLines, firstStrongTextDirection} from './inline-equation.js?v=20261121-variation-fields';
+import {textMeasurer} from './text-measure.js?v=20261121-variation-fields';
 
 export const TABLE_LIMITS = {cols:30, rows:100, cells:600, cellText:2000, totalText:120000};
 export const MIN_COL = 36, MIN_ROW = 34, PAGE_MARGIN = 24;

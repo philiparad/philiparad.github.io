@@ -1,9 +1,9 @@
-import {exportFilename} from './export-filename.js?v=20261121-tables';
-import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261121-tables';
-import { SnippetRepository } from './snippet-storage.js?v=20261121-tables';
-import { el, btn, formDialog, notify, chooseFile, download } from './ui.js?v=20261121-tables';
-import { drawItem, svgEl, union } from './scene.js?v=20261121-tables';
-import { expandGroups } from './groups.js?v=20261121-tables';
+import {exportFilename} from './export-filename.js?v=20261121-variation-fields';
+import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261121-variation-fields';
+import { SnippetRepository } from './snippet-storage.js?v=20261121-variation-fields';
+import { el, btn, formDialog, notify, chooseFile, download } from './ui.js?v=20261121-variation-fields';
+import { drawItem, svgEl, union } from './scene.js?v=20261121-variation-fields';
+import { expandGroups } from './groups.js?v=20261121-variation-fields';
 
 export class Snippets {
  constructor(editor){this.editor=editor;this.repo=new SnippetRepository();}

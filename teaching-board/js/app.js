@@ -1,12 +1,12 @@
-import {gridPath} from './table-renderer.js?v=20261121-tables';
-import { showRecovery } from './recovery.js?v=20261121-tables';
-import { createBoard, parseBackup } from './model.js?v=20261121-tables';
-import { BoardRepository } from './storage.js?v=20261121-tables';
-import { Editor } from './editor.js?v=20261121-tables';
-import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261121-tables';
-import { backup } from './export.js?v=20261121-tables';
-import { svgEl } from './scene.js?v=20261121-tables';
-import {findLessonSummaries,shownLessons,DASHBOARD_PAGE_SIZE} from './dashboard-data.js?v=20261121-tables';
+import {gridPath} from './table-renderer.js?v=20261121-variation-fields';
+import { showRecovery } from './recovery.js?v=20261121-variation-fields';
+import { createBoard, parseBackup } from './model.js?v=20261121-variation-fields';
+import { BoardRepository } from './storage.js?v=20261121-variation-fields';
+import { Editor } from './editor.js?v=20261121-variation-fields';
+import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261121-variation-fields';
+import { backup } from './export.js?v=20261121-variation-fields';
+import { svgEl } from './scene.js?v=20261121-variation-fields';
+import {findLessonSummaries,shownLessons,DASHBOARD_PAGE_SIZE} from './dashboard-data.js?v=20261121-variation-fields';
 
 const repository=new BoardRepository(),app=document.querySelector('#app');
 let editor=null,generation=0,viewTrash=false,folderFilter='',searchText='',sortBy='recent';

@@ -1,8 +1,8 @@
-import {el} from './ui.js?v=20261121-tables';
-import {toolIcon} from './tool-icons.js?v=20261121-tables';
-import {svgEl} from './scene.js?v=20261121-tables';
-import {gridPath} from './table-renderer.js?v=20261121-tables';
-import {numberInput,wholeNumber,choices,labeled,widthChoices,directionChoices,tableDialog} from './table-dialog.js?v=20261121-tables';
+import {el} from './ui.js?v=20261121-variation-fields';
+import {toolIcon} from './tool-icons.js?v=20261121-variation-fields';
+import {svgEl} from './scene.js?v=20261121-variation-fields';
+import {gridPath} from './table-renderer.js?v=20261121-variation-fields';
+import {numberInput,wholeNumber,choices,labeled,widthChoices,directionChoices,tableDialog} from './table-dialog.js?v=20261121-variation-fields';
 
 const label=(c,r)=>c+' column'+(c===1?'':'s')+' × '+r+' row'+(r===1?'':'s');
 export class TablePicker {

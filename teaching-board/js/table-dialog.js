@@ -1,4 +1,4 @@
-import {el} from './ui.js?v=20261121-tables';
+import {el} from './ui.js?v=20261121-variation-fields';
 
 export function numberInput(value, min, max) {
     const n=el('input');n.type='text';n.inputMode='numeric';n.value=String(value??'');
