@@ -1,7 +1,7 @@
-import {el,btn} from './ui.js?v=20261121-variation-fields';
-import {toolIcon} from './tool-icons.js?v=20261121-variation-fields';
-import {CALCULATOR_ANS_PROTOCOL,validateAnsResponse} from './calculator-answer.js?v=20261121-variation-fields';
-import {clampFloatingWindowPosition,initialFloatingWindowPosition,readCalculatorWindowPosition,storeCalculatorWindowPosition,restoreCalculatorWindowPosition,windowPositionRatios,clearCalculatorWindowPosition} from './calculator-window-position.js?v=20261121-variation-fields';
+import {el,btn} from './ui.js?v=20261125-blank-signs';
+import {toolIcon} from './tool-icons.js?v=20261125-blank-signs';
+import {CALCULATOR_ANS_PROTOCOL,validateAnsResponse} from './calculator-answer.js?v=20261125-blank-signs';
+import {clampFloatingWindowPosition,initialFloatingWindowPosition,readCalculatorWindowPosition,storeCalculatorWindowPosition,restoreCalculatorWindowPosition,windowPositionRatios,clearCalculatorWindowPosition} from './calculator-window-position.js?v=20261125-blank-signs';
 
 export const CALCULATOR_URL='https://philiparad.github.io/calculator/';
 const CALCULATOR_ORIGIN=new URL(CALCULATOR_URL).origin;

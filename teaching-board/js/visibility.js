@@ -1,5 +1,5 @@
-import {bounds} from './scene.js?v=20261121-variation-fields';
-import { SHAPES } from './shapes.js?v=20261121-variation-fields';
+import {bounds} from './scene.js?v=20261125-blank-signs';
+import { SHAPES } from './shapes.js?v=20261125-blank-signs';
 
 // PERF-004: Text/note bounds must use the same wrapped, measured height as
 // sceneSVG and hit testing. Cache by item identity and geometry so a pan/zoom

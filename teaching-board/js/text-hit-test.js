@@ -1,4 +1,4 @@
-import {textObjectHeight} from './scene.js?v=20261121-variation-fields';
+import {textObjectHeight} from './scene.js?v=20261125-blank-signs';
 
 /** Precise hit testing for the full visible text box, including empty glyph gaps. */
 export function pointInTextBox(item,point){

@@ -1,8 +1,8 @@
-import {backgroundOrder} from './background-lock.js?v=20261121-variation-fields';
-import { backgroundOptions } from './background-options.js?v=20261121-variation-fields';
-import { el, notify, confirmDialog } from './ui.js?v=20261121-variation-fields';
-import { svgEl, drawItem, background, bounds } from './scene.js?v=20261121-variation-fields';
-import { planTextFlow,applyTextFlow } from './text-pagination.js?v=20261121-variation-fields';
+import {backgroundOrder} from './background-lock.js?v=20261125-blank-signs';
+import { backgroundOptions } from './background-options.js?v=20261125-blank-signs';
+import { el, notify, confirmDialog } from './ui.js?v=20261125-blank-signs';
+import { svgEl, drawItem, background, bounds } from './scene.js?v=20261125-blank-signs';
+import { planTextFlow,applyTextFlow } from './text-pagination.js?v=20261125-blank-signs';
 export const A4={w:794,h:1123,gap:32};
 export const pageRect=index=>({x:0,y:index*(A4.h+A4.gap),w:A4.w,h:A4.h});
 /**

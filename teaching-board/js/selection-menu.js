@@ -1,8 +1,8 @@
-import {cellAt} from './table-model.js?v=20261121-variation-fields';
-import {el,btn,notify} from './ui.js?v=20261121-variation-fields';
-import {expandGroups} from './groups.js?v=20261121-variation-fields';
-import {BOARD_CLIPBOARD} from './clipboard.js?v=20261121-variation-fields';
-import {validateBoard} from './model.js?v=20261121-variation-fields';
+import {cellAt} from './table-model.js?v=20261125-blank-signs';
+import {el,btn,notify} from './ui.js?v=20261125-blank-signs';
+import {expandGroups} from './groups.js?v=20261125-blank-signs';
+import {BOARD_CLIPBOARD} from './clipboard.js?v=20261125-blank-signs';
+import {validateBoard} from './model.js?v=20261125-blank-signs';
 const PREFIX='teaching-board-selection:';
 export function selectionItems(e){return e.board.items.filter(i=>e.selected.has(i.id));}
 export async function copySelection(e){

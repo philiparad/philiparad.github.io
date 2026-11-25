@@ -1,4 +1,4 @@
-import {validateInlineEquation,equationNode,equationContentWidth} from './inline-equation.js?v=20261121-variation-fields';
+import {validateInlineEquation,equationNode,equationContentWidth} from './inline-equation.js?v=20261125-blank-signs';
 /** Plain data only: no HTML is stored in lessons or exports. */
 export function textRuns(item){return item.runs||[{text:item.text||'',bold:(item.textStyle||'').includes('bold'),italic:(item.textStyle||'').includes('italic'),underline:false,strike:false}];}
 export function validateRuns(runs,text){

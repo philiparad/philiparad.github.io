@@ -1,8 +1,8 @@
-import { backgroundOptions } from './background-options.js?v=20261121-variation-fields';
-import { svgEl, union, bounds } from './scene.js?v=20261121-variation-fields';
-import { pageRect } from './pages.js?v=20261121-variation-fields';
-import { el, btn } from './ui.js?v=20261121-variation-fields';
-import { RenderCache } from './render-cache.js?v=20261121-variation-fields';
+import { backgroundOptions } from './background-options.js?v=20261125-blank-signs';
+import { svgEl, union, bounds } from './scene.js?v=20261125-blank-signs';
+import { pageRect } from './pages.js?v=20261125-blank-signs';
+import { el, btn } from './ui.js?v=20261125-blank-signs';
+import { RenderCache } from './render-cache.js?v=20261125-blank-signs';
 
 export function centeredViewport(viewport, point, width, height) {
  return {zoom:viewport.zoom,x:width/2-point.x*viewport.zoom,y:height/2-point.y*viewport.zoom};

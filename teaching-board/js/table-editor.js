@@ -1,13 +1,13 @@
-import {el,notify} from './ui.js?v=20261121-variation-fields';
-import {svgEl} from './scene.js?v=20261121-variation-fields';
-import {pageRect,A4} from './pages.js?v=20261121-variation-fields';
-import {toScreen,toWorld} from './viewport.js?v=20261121-variation-fields';
-import {TEXT_FONT_FAMILY} from './text-font.js?v=20261121-variation-fields';
+import {el,notify} from './ui.js?v=20261125-blank-signs';
+import {svgEl} from './scene.js?v=20261125-blank-signs';
+import {pageRect,A4} from './pages.js?v=20261125-blank-signs';
+import {toScreen,toWorld} from './viewport.js?v=20261125-blank-signs';
+import {TEXT_FONT_FAMILY} from './text-font.js?v=20261125-blank-signs';
 import {createTable,tableGeometry,validateTableItem,offsets,cellRect,cellAt,tablePoint,cellStyle,
-    fitTable,changeAxis,dividerDelta,moveDivider,PAGE_MARGIN,TABLE_LIMITS} from './table-model.js?v=20261121-variation-fields';
-import {parseTSV,pasteRange,selectedRange} from './table-range.js?v=20261121-variation-fields';
-import {TablePicker} from './table-picker.js?v=20261121-variation-fields';
-import {tableOptions} from './table-actions.js?v=20261121-variation-fields';
+    fitTable,changeAxis,dividerDelta,moveDivider,PAGE_MARGIN,TABLE_LIMITS} from './table-model.js?v=20261125-blank-signs';
+import {parseTSV,pasteRange,selectedRange} from './table-range.js?v=20261125-blank-signs';
+import {TablePicker} from './table-picker.js?v=20261125-blank-signs';
+import {tableOptions} from './table-actions.js?v=20261125-blank-signs';
 
 export class TableEditor {
     constructor(editor) {

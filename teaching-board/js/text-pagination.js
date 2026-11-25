@@ -1,6 +1,6 @@
-import {paragraphRuns,textRuns,compactRuns,validateRuns,validateParagraphs} from './rich-text.js?v=20261121-variation-fields';
-import {textLayoutMetrics,paragraphDirectionIsRtl} from './inline-equation.js?v=20261121-variation-fields';
-import {bounds} from './scene.js?v=20261121-variation-fields';
+import {paragraphRuns,textRuns,compactRuns,validateRuns,validateParagraphs} from './rich-text.js?v=20261125-blank-signs';
+import {textLayoutMetrics,paragraphDirectionIsRtl} from './inline-equation.js?v=20261125-blank-signs';
+import {bounds} from './scene.js?v=20261125-blank-signs';
 
 const MAX_PAGES=100;
 const TOP_MARGIN=24;

@@ -1,4 +1,4 @@
-import {imageAxes} from './image-geometry.js?v=20261121-variation-fields';
+import {imageAxes} from './image-geometry.js?v=20261125-blank-signs';
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 export function dragCrop(start,from,to,handle){
  const dx=to.x-from.x,dy=to.y-from.y,min=.001;

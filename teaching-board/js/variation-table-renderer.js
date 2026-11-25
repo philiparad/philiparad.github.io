@@ -1,4 +1,4 @@
-import {analyzeVariation,validateVariationSpec} from './variation-table-model.js?v=20261121-variation-fields';
+import {analyzeVariation,validateVariationSpec} from './variation-table-model.js?v=20261125-blank-signs';
 
 export function variationLayout(spec,w=900,h=310){
     const count=2*new Set(spec.points.map(p=>p.x).concat(
@@ -67,10 +67,10 @@ export function renderVariationTable(item,svgEl){
         for(const r of rows){
             if(!spec.reveal.signs)continue;
             const sign=r.key==='first'?interval.sign:r.key==='second'?interval.secondSign:null;
-            if(sign!==null){
+            if(sign==='+'||sign==='-'){
                 const verdict=r.key==='first'?interval.firstVerified:interval.secondVerified;
                 const color=verdict===false?'#c0392b':verdict===true?'#178251':
-                    sign==='-'?'#c44861':sign==='+'?'#4b3991':'#7c8793';
+                    sign==='-'?'#c44861':'#4b3991';
                 g.append(text(x,r.y+r.h/2,sign,signSize,color,{'font-weight':'bold'}));
                 if(spec.session==='check'&&verdict!==null)
                     g.append(text(x+cell*.3,r.y+r.h*.23,verdict?'✓':'×',tiny,

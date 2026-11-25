@@ -1,4 +1,4 @@
-import {compileExpression} from './expression.js?v=20261121-variation-fields';
+import {compileExpression} from './expression.js?v=20261125-blank-signs';
 
 // A break point describes a mathematical event, not a visual table cell.
 export const VARIATION_KINDS=['zero','undefined','derivativeUndefined','secondZero','secondUndefined'];

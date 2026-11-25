@@ -1,5 +1,5 @@
-import {compileExpression} from './expression.js?v=20261121-variation-fields';
-import {el} from './ui.js?v=20261121-variation-fields';
+import {compileExpression} from './expression.js?v=20261125-blank-signs';
+import {el} from './ui.js?v=20261125-blank-signs';
 export function domainContains(row,x){return x>=(row.domainMin??-Infinity)&&x<=(row.domainMax??Infinity)&&!(row.domainMinOpen&&x===row.domainMin)&&!(row.domainMaxOpen&&x===row.domainMax);}
 export function endpointMarkers(row,parameters={},range,functions={}){
  const f=compileExpression(row.source,'x',parameters,functions),markers=[];

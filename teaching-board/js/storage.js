@@ -1,5 +1,5 @@
-import { validateBoard } from './model.js?v=20261121-variation-fields';
-import {summarizeBoard} from './dashboard-data.js?v=20261121-variation-fields';
+import { validateBoard } from './model.js?v=20261125-blank-signs';
+import {summarizeBoard} from './dashboard-data.js?v=20261125-blank-signs';
 export class ConflictError extends Error {
   constructor() { super('This board changed in another tab. Reopen it before editing.'); this.name = 'ConflictError'; }
 }

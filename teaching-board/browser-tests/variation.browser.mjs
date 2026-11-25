@@ -74,6 +74,7 @@ export async function checkVariationTable(page,base){
     await fill('secondSource','6*x');
     await dialog.locator('.variation-flag input').nth(3).check(); // continuity
     await dialog.getByRole('button',{name:'בנה / עדכן עמודות'}).click();
+    await dialog.getByLabel('סימן נגזרת שנייה').first().selectOption('?');
     await dialog.locator('button[type="submit"]').click();
     await dialog.waitFor({state:'hidden'});
     assert.equal(await page.locator('[data-variation-table]').count(),1);
@@ -94,5 +95,7 @@ export async function checkVariationTable(page,base){
     const restored=await page.locator('[data-variation-table] text').allTextContents();
     assert(restored.includes('פיתול'));
     assert(restored.includes('5/4'));
+    assert(!restored.includes('?'));
+    assert(restored.includes('+')&&restored.includes('-'));
     assert(await table.locator('[data-variation-interval]').count()>0);
 };

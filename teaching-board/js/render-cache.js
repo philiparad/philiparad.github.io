@@ -1,5 +1,5 @@
-import {imageSVGTransform} from './image-geometry.js?v=20261121-variation-fields';
-import {drawItem, textObjectHeight} from './scene.js?v=20261121-variation-fields';
+import {imageSVGTransform} from './image-geometry.js?v=20261125-blank-signs';
+import {drawItem, textObjectHeight} from './scene.js?v=20261125-blank-signs';
 
 // PERF-002: compare only shallow visual properties on a repaint. Large ink paths,
 // formatted text, and base64 image data must never be serialized per frame.
