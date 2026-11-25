@@ -1,4 +1,4 @@
-import {captureLogicalSelection,logicalParagraphs,restoreLogicalSelection} from './text-selection.js?v=20261125-blank-signs';
+import {captureLogicalSelection,logicalParagraphs,restoreLogicalSelection} from './text-selection.js?v=20261125-variation-toolbar';
 
 /**
  * Equations are DOM elements but occupy a single U+FFFC in the rich-text

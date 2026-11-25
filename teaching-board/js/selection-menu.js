@@ -1,8 +1,8 @@
-import {cellAt} from './table-model.js?v=20261125-blank-signs';
-import {el,btn,notify} from './ui.js?v=20261125-blank-signs';
-import {expandGroups} from './groups.js?v=20261125-blank-signs';
-import {BOARD_CLIPBOARD} from './clipboard.js?v=20261125-blank-signs';
-import {validateBoard} from './model.js?v=20261125-blank-signs';
+import {cellAt} from './table-model.js?v=20261125-variation-toolbar';
+import {el,btn,notify} from './ui.js?v=20261125-variation-toolbar';
+import {expandGroups} from './groups.js?v=20261125-variation-toolbar';
+import {BOARD_CLIPBOARD} from './clipboard.js?v=20261125-variation-toolbar';
+import {validateBoard} from './model.js?v=20261125-variation-toolbar';
 const PREFIX='teaching-board-selection:';
 export function selectionItems(e){return e.board.items.filter(i=>e.selected.has(i.id));}
 export async function copySelection(e){
@@ -50,7 +50,7 @@ export class SelectionMenu{
    if(spot)add('Mark test x on linked graph',
       ()=>e.linkVariationInterval(items[0],Number(spot.getAttribute('data-variation-test'))),
       editable&&Boolean(items[0].spec.graphId));
-   add('Reveal next stage',()=>e.revealVariation(),editable);sep();
+   sep();
   }
   add('Duplicate',()=>e.duplicate(),has);add(items.some(i=>e.isBackgroundLocked(i))?'Unlock':'Lock to Background',()=>e.lockSelectionToBackground(),editable);sep();
   add('Cut',()=>cutSelection(e),editable);add('Copy',()=>copySelection(e),has);add('Paste',()=>pasteSelection(e));sep();

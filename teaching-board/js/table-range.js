@@ -1,4 +1,4 @@
-import {TABLE_LIMITS,tableDimensions,changeAxis} from './table-model.js?v=20261125-blank-signs';
+import {TABLE_LIMITS,tableDimensions,changeAxis} from './table-model.js?v=20261125-variation-toolbar';
 
 export function selectedRange(t,r,c,scope) {
     return {firstRow:scope==='column'||scope==='table'?0:r,lastRow:scope==='column'||scope==='table'?t.rows-1:r,

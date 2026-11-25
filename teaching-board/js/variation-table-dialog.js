@@ -1,5 +1,5 @@
-import {el} from './ui.js?v=20261125-blank-signs';
-import {createVariationSpec,analyzeVariation,coordinate,variationKey} from './variation-table-model.js?v=20261125-blank-signs';
+import {el} from './ui.js?v=20261125-variation-toolbar';
+import {createVariationSpec,analyzeVariation,coordinate,variationKey} from './variation-table-model.js?v=20261125-variation-toolbar';
 
 const GROUPS=[
     ['zeros','אפסי הנגזרת הראשונה'],

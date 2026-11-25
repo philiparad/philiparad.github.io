@@ -1,4 +1,4 @@
-import {bounds} from './scene.js?v=20261125-blank-signs';
+import {bounds} from './scene.js?v=20261125-variation-toolbar';
 
 // PERF-006 — construct once per snapping gesture. Preserve the original
 // traversal order as a rank: on equal distances, the last candidate wins.

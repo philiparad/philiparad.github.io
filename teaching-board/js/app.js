@@ -1,12 +1,12 @@
-import {gridPath} from './table-renderer.js?v=20261125-blank-signs';
-import { showRecovery } from './recovery.js?v=20261125-blank-signs';
-import { createBoard, parseBackup } from './model.js?v=20261125-blank-signs';
-import { BoardRepository } from './storage.js?v=20261125-blank-signs';
-import { Editor } from './editor.js?v=20261125-blank-signs';
-import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261125-blank-signs';
-import { backup } from './export.js?v=20261125-blank-signs';
-import { svgEl } from './scene.js?v=20261125-blank-signs';
-import {findLessonSummaries,shownLessons,DASHBOARD_PAGE_SIZE} from './dashboard-data.js?v=20261125-blank-signs';
+import {gridPath} from './table-renderer.js?v=20261125-variation-toolbar';
+import { showRecovery } from './recovery.js?v=20261125-variation-toolbar';
+import { createBoard, parseBackup } from './model.js?v=20261125-variation-toolbar';
+import { BoardRepository } from './storage.js?v=20261125-variation-toolbar';
+import { Editor } from './editor.js?v=20261125-variation-toolbar';
+import { el, btn, formDialog, confirmDialog, chooseFile, notify } from './ui.js?v=20261125-variation-toolbar';
+import { backup } from './export.js?v=20261125-variation-toolbar';
+import { svgEl } from './scene.js?v=20261125-variation-toolbar';
+import {findLessonSummaries,shownLessons,DASHBOARD_PAGE_SIZE} from './dashboard-data.js?v=20261125-variation-toolbar';
 
 const repository=new BoardRepository(),app=document.querySelector('#app');
 let editor=null,generation=0,viewTrash=false,folderFilter='',searchText='',sortBy='recent';

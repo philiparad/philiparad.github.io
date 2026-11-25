@@ -1,5 +1,5 @@
-import {el,btn} from './ui.js?v=20261125-blank-signs';
-import {svgEl} from './scene.js?v=20261125-blank-signs';
+import {el,btn} from './ui.js?v=20261125-variation-toolbar';
+import {svgEl} from './scene.js?v=20261125-variation-toolbar';
 const icons={clear:'M5 7h14 M9 4h6 M7 7v14h10V7 M10 10v8 M14 10v8'};
 export class BoardMenu{
  constructor(actions){

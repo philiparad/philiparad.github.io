@@ -1,8 +1,8 @@
-import {el} from './ui.js?v=20261125-blank-signs';
-import {toolIcon} from './tool-icons.js?v=20261125-blank-signs';
-import {svgEl} from './scene.js?v=20261125-blank-signs';
-import {gridPath} from './table-renderer.js?v=20261125-blank-signs';
-import {numberInput,wholeNumber,choices,labeled,widthChoices,directionChoices,tableDialog} from './table-dialog.js?v=20261125-blank-signs';
+import {el} from './ui.js?v=20261125-variation-toolbar';
+import {toolIcon} from './tool-icons.js?v=20261125-variation-toolbar';
+import {svgEl} from './scene.js?v=20261125-variation-toolbar';
+import {gridPath} from './table-renderer.js?v=20261125-variation-toolbar';
+import {numberInput,wholeNumber,choices,labeled,widthChoices,directionChoices,tableDialog} from './table-dialog.js?v=20261125-variation-toolbar';
 
 const label=(c,r)=>c+' column'+(c===1?'':'s')+' × '+r+' row'+(r===1?'':'s');
 export class TablePicker {

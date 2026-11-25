@@ -1,5 +1,5 @@
-import {el,btn} from './ui.js?v=20261125-blank-signs';
-import {bounds} from './scene.js?v=20261125-blank-signs';
+import {el,btn} from './ui.js?v=20261125-variation-toolbar';
+import {bounds} from './scene.js?v=20261125-variation-toolbar';
 export class ImageToolbar{
  constructor(e){this.e=e;this.root=el('div',null,'image-selection-toolbar');this.root.setAttribute('role','toolbar');this.root.setAttribute('aria-label','Selected image');this.root.hidden=true;
  this.crop=btn('Crop image',()=>e.action(()=>e.editSelected()));this.crop.title='Crop the image; the original is preserved';

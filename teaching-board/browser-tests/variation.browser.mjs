@@ -18,6 +18,7 @@ export async function checkVariationTable(page,base){
     await dialog.locator('button[type="submit"]').click();
     const insert=page.getByRole('button',{name:'Insert variation table'});
     await insert.waitFor();
+    assert.equal(await page.getByRole('button',{name:'Reveal variation table stages',exact:true}).count(),0);
     await insert.click();
     assert.equal(await removedFields.count(),0);
     assert.equal(await dialog.getByText(/בגרף המקושר/).count(),0);
@@ -67,7 +68,10 @@ export async function checkVariationTable(page,base){
 
     // Editing in place must produce a combined f' / f'' table, not a new object.
     await table.click({button:'right'});
-    await page.getByRole('menuitem',{name:'Edit variation table'}).click();
+    const edit=page.getByRole('menuitem',{name:'Edit variation table'});
+    await edit.waitFor();
+    assert.equal(await page.getByRole('menuitem',{name:'Reveal next stage',exact:true}).count(),0);
+    await edit.click();
     await dialog.getByLabel('סוג הטבלה').selectOption('combined');
     assert.equal(await removedFields.count(),0);
     await fill('secondZeros','0');

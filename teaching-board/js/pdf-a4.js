@@ -1,4 +1,4 @@
-import { A4, pageRect } from './pages.js?v=20261125-blank-signs';
+import { A4, pageRect } from './pages.js?v=20261125-variation-toolbar';
 
 /** Prepare the entire import without changing the document. */
 export function planA4Import(board,pages){

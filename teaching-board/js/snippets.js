@@ -1,9 +1,9 @@
-import {exportFilename} from './export-filename.js?v=20261125-blank-signs';
-import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261125-blank-signs';
-import { SnippetRepository } from './snippet-storage.js?v=20261125-blank-signs';
-import { el, btn, formDialog, notify, chooseFile, download } from './ui.js?v=20261125-blank-signs';
-import { drawItem, svgEl, union } from './scene.js?v=20261125-blank-signs';
-import { expandGroups } from './groups.js?v=20261125-blank-signs';
+import {exportFilename} from './export-filename.js?v=20261125-variation-toolbar';
+import { createSnippet, snippetCopies, serializeSnippet, parseSnippet } from './snippet-model.js?v=20261125-variation-toolbar';
+import { SnippetRepository } from './snippet-storage.js?v=20261125-variation-toolbar';
+import { el, btn, formDialog, notify, chooseFile, download } from './ui.js?v=20261125-variation-toolbar';
+import { drawItem, svgEl, union } from './scene.js?v=20261125-variation-toolbar';
+import { expandGroups } from './groups.js?v=20261125-variation-toolbar';
 
 export class Snippets {
  constructor(editor){this.editor=editor;this.repo=new SnippetRepository();}

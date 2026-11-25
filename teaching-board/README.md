@@ -676,8 +676,8 @@ Closed/open domain bounds can also be supplied.
   derivative signs. Student mode never reveals automatically computed signs.
   Check mode evaluates supplied derivative expressions at sample points and
   indicates correct/incorrect manually selected signs.
-- The eye icon progressively reveals signs, arrows and conclusions on the
-  selected table, then hides all stages. Double-click or right-click to edit.
+- Double-click a table or select **Edit variation table** from its context menu
+  to set which signs, arrows and conclusions appear.
 - Optionally choose an existing graph to link. Shift+click an intermediate
   interval column to place the x marker on that graph and any graph-linked
   partners. Context menu provides an alternative.

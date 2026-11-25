@@ -1,54 +1,54 @@
-import {TableEditor} from './table-editor.js?v=20261125-blank-signs';
-import {variationDialog} from './variation-table-dialog.js?v=20261125-blank-signs';
-import {createVariationItem} from './variation-table-renderer.js?v=20261125-blank-signs';
-import {cellAt,scaleTable} from './table-model.js?v=20261125-blank-signs';
-import {backgroundLocked,backgroundOrder} from './background-lock.js?v=20261125-blank-signs';
-import {ImageToolbar} from './image-toolbar.js?v=20261125-blank-signs';
-import {SelectionMenu} from './selection-menu.js?v=20261125-blank-signs';
-import {drawResizeHandles,beginResize,resizeItems,drawRotationHandle,beginRotation,rotateItems} from './selection-transform.js?v=20261125-blank-signs';
-import { BoardMenu } from './board-menu.js?v=20261125-blank-signs';
-import { LaserTrail, laserOptions } from './laser-trail.js?v=20261125-blank-signs';
-import { backgroundOptions } from './background-options.js?v=20261125-blank-signs';
-import { Minimap } from './minimap.js?v=20261125-blank-signs';
-import {rangeMembers,shiftedRange,linkedRangeUpdates} from './linked-ranges.js?v=20261125-blank-signs';
-import {linkedGraphs,linkGraphs,unlinkGraphs,normalizeGraphLinks} from './graph-links.js?v=20261125-blank-signs';
-import { Recovery } from './recovery.js?v=20261125-blank-signs';
-import { exportScopeDialog } from './export-scope.js?v=20261125-blank-signs';
-import { planA4Import } from './pdf-a4.js?v=20261125-blank-signs';
-import { Snippets, snippetCopies } from './snippets.js?v=20261125-blank-signs';
-import { InlineText } from './inline-text.js?v=20261125-blank-signs';
-import {listNewTextDrafts,clearTextDraft} from './text-draft-recovery.js?v=20261125-blank-signs';
-import { connectorTarget, syncConnectors } from './connectors.js?v=20261125-blank-signs';
-import { expandGroups, groupLocked, copiedItems } from './groups.js?v=20261125-blank-signs';
-import { visibleItems, invalidateTextBounds, invalidatePointBounds } from './visibility.js?v=20261125-blank-signs';
-import { RenderCache } from './render-cache.js?v=20261125-blank-signs';
-import { SpeedInk } from './speed-ink.js?v=20261125-blank-signs';
-import { penPressure, resmoothPressure } from './pressure.js?v=20261125-blank-signs';
-import { ShapeGallery } from './shape-gallery.js?v=20261125-blank-signs';
-import { FillPalette } from './fill-palette.js?v=20261125-blank-signs';
-import { BOARD_CLIPBOARD, editingText, clipboardImages } from './clipboard.js?v=20261125-blank-signs';
-import { LineStyleMenu } from './line-style-menu.js?v=20261125-blank-signs';
-import { Pages,A4,pageRect } from './pages.js?v=20261125-blank-signs';
-import { cropDialog } from './crop-editor.js?v=20261125-blank-signs';
-import { el, btn, formDialog, chooseFile, notify, confirmDialog } from './ui.js?v=20261125-blank-signs';
-import { svgEl, drawItem, background, bounds, union, textObjectHeight } from './scene.js?v=20261125-blank-signs';
-import { hitTextBox } from './text-hit-test.js?v=20261125-blank-signs';
-import { toWorld, zoomAt } from './viewport.js?v=20261125-blank-signs';
-import { History } from './history.js?v=20261125-blank-signs';
-import { SaveQueue } from './save-queue.js?v=20261125-blank-signs';
-import { equation, graph, importImage, importPDF } from './media.js?v=20261125-blank-signs';
-import { exportBoard, backup } from './export.js?v=20261125-blank-signs';
-import { validateBoard,checkBoard } from './model.js?v=20261125-blank-signs';
-import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261125-blank-signs';
+import {TableEditor} from './table-editor.js?v=20261125-variation-toolbar';
+import {variationDialog} from './variation-table-dialog.js?v=20261125-variation-toolbar';
+import {createVariationItem} from './variation-table-renderer.js?v=20261125-variation-toolbar';
+import {cellAt,scaleTable} from './table-model.js?v=20261125-variation-toolbar';
+import {backgroundLocked,backgroundOrder} from './background-lock.js?v=20261125-variation-toolbar';
+import {ImageToolbar} from './image-toolbar.js?v=20261125-variation-toolbar';
+import {SelectionMenu} from './selection-menu.js?v=20261125-variation-toolbar';
+import {drawResizeHandles,beginResize,resizeItems,drawRotationHandle,beginRotation,rotateItems} from './selection-transform.js?v=20261125-variation-toolbar';
+import { BoardMenu } from './board-menu.js?v=20261125-variation-toolbar';
+import { LaserTrail, laserOptions } from './laser-trail.js?v=20261125-variation-toolbar';
+import { backgroundOptions } from './background-options.js?v=20261125-variation-toolbar';
+import { Minimap } from './minimap.js?v=20261125-variation-toolbar';
+import {rangeMembers,shiftedRange,linkedRangeUpdates} from './linked-ranges.js?v=20261125-variation-toolbar';
+import {linkedGraphs,linkGraphs,unlinkGraphs,normalizeGraphLinks} from './graph-links.js?v=20261125-variation-toolbar';
+import { Recovery } from './recovery.js?v=20261125-variation-toolbar';
+import { exportScopeDialog } from './export-scope.js?v=20261125-variation-toolbar';
+import { planA4Import } from './pdf-a4.js?v=20261125-variation-toolbar';
+import { Snippets, snippetCopies } from './snippets.js?v=20261125-variation-toolbar';
+import { InlineText } from './inline-text.js?v=20261125-variation-toolbar';
+import {listNewTextDrafts,clearTextDraft} from './text-draft-recovery.js?v=20261125-variation-toolbar';
+import { connectorTarget, syncConnectors } from './connectors.js?v=20261125-variation-toolbar';
+import { expandGroups, groupLocked, copiedItems } from './groups.js?v=20261125-variation-toolbar';
+import { visibleItems, invalidateTextBounds, invalidatePointBounds } from './visibility.js?v=20261125-variation-toolbar';
+import { RenderCache } from './render-cache.js?v=20261125-variation-toolbar';
+import { SpeedInk } from './speed-ink.js?v=20261125-variation-toolbar';
+import { penPressure, resmoothPressure } from './pressure.js?v=20261125-variation-toolbar';
+import { ShapeGallery } from './shape-gallery.js?v=20261125-variation-toolbar';
+import { FillPalette } from './fill-palette.js?v=20261125-variation-toolbar';
+import { BOARD_CLIPBOARD, editingText, clipboardImages } from './clipboard.js?v=20261125-variation-toolbar';
+import { LineStyleMenu } from './line-style-menu.js?v=20261125-variation-toolbar';
+import { Pages,A4,pageRect } from './pages.js?v=20261125-variation-toolbar';
+import { cropDialog } from './crop-editor.js?v=20261125-variation-toolbar';
+import { el, btn, formDialog, chooseFile, notify, confirmDialog } from './ui.js?v=20261125-variation-toolbar';
+import { svgEl, drawItem, background, bounds, union, textObjectHeight } from './scene.js?v=20261125-variation-toolbar';
+import { hitTextBox } from './text-hit-test.js?v=20261125-variation-toolbar';
+import { toWorld, zoomAt } from './viewport.js?v=20261125-variation-toolbar';
+import { History } from './history.js?v=20261125-variation-toolbar';
+import { SaveQueue } from './save-queue.js?v=20261125-variation-toolbar';
+import { equation, graph, importImage, importPDF } from './media.js?v=20261125-variation-toolbar';
+import { exportBoard, backup } from './export.js?v=20261125-variation-toolbar';
+import { validateBoard,checkBoard } from './model.js?v=20261125-variation-toolbar';
+import { refineInk, IncrementalInk, pointerSamples } from './ink.js?v=20261125-variation-toolbar';
 
-import { toolIcon } from './tool-icons.js?v=20261125-blank-signs';
-import { CalculatorModal } from './calculator-modal.js?v=20261125-blank-signs';
-import {calculatorTextItem,calculatorAnswerPlacement,calculatorAnswerPlacementOnPages} from './calculator-answer.js?v=20261125-blank-signs';
+import { toolIcon } from './tool-icons.js?v=20261125-variation-toolbar';
+import { CalculatorModal } from './calculator-modal.js?v=20261125-variation-toolbar';
+import {calculatorTextItem,calculatorAnswerPlacement,calculatorAnswerPlacementOnPages} from './calculator-answer.js?v=20261125-variation-toolbar';
 
-import { Geometry } from './geometry.js?v=20261125-blank-signs';
-import { snapPoint, snapAngle, buildSnapIndex } from './snapping.js?v=20261125-blank-signs';
-import { equationDialog } from './equation-editor.js?v=20261125-blank-signs';
-import { graphDialog } from './graph-editor.js?v=20261125-blank-signs';
+import { Geometry } from './geometry.js?v=20261125-variation-toolbar';
+import { snapPoint, snapAngle, buildSnapIndex } from './snapping.js?v=20261125-variation-toolbar';
+import { equationDialog } from './equation-editor.js?v=20261125-variation-toolbar';
+import { graphDialog } from './graph-editor.js?v=20261125-variation-toolbar';
 const TOOLS=[['select','↖','Select (V)'],['pan','✋','Pan (H)'],['pen','✎','Pen (P)'],['highlighter','▰','Highlighter'],['eraser','⌫','Object eraser (E)'],['curve','∿','Editable curve'],['arc','◠','Compass / arc'],['line','╱','Line (L)'],['arrow','↗','Arrow'],['rectangle','□','Rectangle (R)'],['ellipse','○','Ellipse (O)'],['triangle','△','Triangle'],['polygon','⬠','Polygon: click vertices, Enter to finish'],['text','T','Text (T)'],['note','▤','Sticky note'],['equation','ƒ','Equation'],['graph','⌁','Function graph'],['image','▧','Image'],['pdf','▥','PDF pages'],['laser','●','Laser pointer']];
 // Reconcile in document order without detaching unchanged SVG nodes.
 function reconcileSceneItems(layer,items,render){
@@ -197,11 +197,8 @@ export class Editor {
  this.variationButton.title='טבלת חקירת פונקציה';
  this.variationButton.setAttribute('aria-label','Insert variation table');
  this.variationButton.replaceChildren(toolIcon('variationTable'));
- this.variationReveal=btn('👁',()=>this.revealVariation(),'tool');
- this.variationReveal.title='חשיפה הדרגתית של הטבלה הנבחרת';
- this.variationReveal.setAttribute('aria-label','Reveal variation table stages');
  bar.insertBefore(this.variationButton,this.toolButtons.get('text'));
- bar.insertBefore(this.variationReveal,this.toolButtons.get('text'));this.selectionMenu=new SelectionMenu(this);this.imageToolbar=new ImageToolbar(this);this.svg.oncontextmenu=e=>this.selectionMenu.open(e);
+ this.selectionMenu=new SelectionMenu(this);this.imageToolbar=new ImageToolbar(this);this.svg.oncontextmenu=e=>this.selectionMenu.open(e);
  this.zoomLabel=el('span');const zoom=el('div',null,'zoom');zoom.append(btn('−',()=>this.zoom(1/1.2)),this.zoomLabel,btn('+',()=>this.zoom(1.2)),btn('Fit',()=>this.fit()),btn('100%',()=>{this.board.viewport={x:0,y:0,zoom:1};this.paint();this.save();}));this.area.append(zoom,this.pages.controls());this.minimap=new Minimap(this);this.area.append(this.minimap.root);
  this.exitPresent=btn('Exit presentation',()=>document.body.classList.remove('presenting'),'exit-present');this.area.append(this.exitPresent);
  const side=el('aside',null,'inspector');side.id='board-utilities';side.hidden=true;const utilities=btn('▤',()=>{side.hidden=!side.hidden;utilities.setAttribute('aria-expanded',String(!side.hidden));},'utilities-toggle');utilities.title='Selection tools and lesson timer';utilities.setAttribute('aria-label','Selection tools and lesson timer');utilities.setAttribute('aria-controls',side.id);utilities.setAttribute('aria-expanded','false');deck.append(utilities);const closeSide=btn('×',()=>{side.hidden=true;utilities.setAttribute('aria-expanded','false');utilities.focus();},'close-utilities');closeSide.setAttribute('aria-label','Close selection tools');side.append(closeSide);side.append(el('h2','Selection'));this.selectionLabel=el('p','No objects selected','muted');side.append(this.selectionLabel);const actions=el('div',null,'selection-actions');this.groupButton=btn('Group',()=>this.groupSelection());this.ungroupButton=btn('Ungroup',()=>this.ungroupSelection());this.connectButton=btn('Connect with arrow',()=>this.connectSelection());this.detachButton=btn('Detach connector',()=>this.detachSelection());actions.append(this.groupButton,this.ungroupButton,this.connectButton,this.detachButton,btn('Edit content',()=>this.editSelected()),btn('Duplicate',()=>this.duplicate()),btn('Delete',()=>this.remove()),btn('Bring to front',()=>this.layer(true)),btn('Send to back',()=>this.layer(false)),btn('Lock / Unlock',()=>{for(const i of this.board.items)if(this.selected.has(i.id))i.locked=!this.isLocked(i);this.commit();}),btn('Rotate',async()=>{const r=await formDialog('Rotate selection',[['angle','Angle in degrees',0,'number']],{validate:v=>{const n=+v.angle;if(!Number.isFinite(n))throw new Error('Enter a number.');return n;}});if(r!==null)this.rotateSelection(r);}),btn('Size',()=>this.resizeDialog()));side.append(actions,el('h2','Linked graphs'));this.graphLinkLabel=el('p','','muted');this.linkGraphsButton=btn('Link selected graphs',()=>{if(linkGraphs(this.board.items,this.selected,i=>this.isLocked(i)))this.commit();});this.selectLinkedButton=btn('Select linked graphs',()=>{this.selected=new Set(linkedGraphs(this.board.items,this.selected).map(i=>i.id));this.paint();});this.unlinkGraphsButton=btn('Unlink selected graphs',()=>{if(unlinkGraphs(this.board.items,this.selected,i=>this.isLocked(i)))this.commit();});this.graphRangeButtons=[btn('Set shared x marker',()=>this.setGraphMarker()),btn('Clear shared x marker',()=>this.setGraphMarker(true)),btn('Set linked x range',()=>this.navigateLinkedGraphs()),...['left','right','in','out'].map((action,k)=>btn(['Shift graphs left','Shift graphs right','Zoom graphs in','Zoom graphs out'][k],()=>this.navigateLinkedGraphs(action)))];side.append(this.graphLinkLabel,this.linkGraphsButton,this.selectLinkedButton,this.unlinkGraphsButton,...this.graphRangeButtons,el('h2','Reusable snippets'));this.saveSnippetButton=btn('Save selection as snippet',()=>this.snippets.saveSelection());side.append(this.saveSnippetButton,btn('Saved snippets',()=>this.snippets.open()),this.recovery.controls(),el('h2','Lesson timer'));this.timerLabel=el('strong','00:00','timer');side.append(this.timerLabel,btn('Set timer',()=>this.timer()),btn('Pause / Resume',()=>{this.paused=!this.paused;}),el('p','Shift-click to select objects, then Group (Ctrl/⌘ G). Click any member to select its group. Ungroup (Ctrl/⌘ Shift G) to edit members separately. Grouping groups combines them into one group. Select two objects and Connect with arrow (from earlier to later drawing order). Detach connector to move the arrow independently.','muted'));layout.append(this.area,side);this.root.append(top,deck,layout);this.toolHint=el('div',null,'tool-hint');this.root.append(this.toolHint);
@@ -507,16 +504,6 @@ export class Editor {
   const targets=graph.graphLinkId?this.board.items.filter(i=>i.type==='graph'&&i.graphLinkId===graph.graphLinkId):[graph];
   if(targets.some(i=>this.isLocked(i)))throw Error('Unlock all linked graphs first.');
   for(const item of targets)item.graphMarkerX=x;
-  this.commit();
- }
- revealVariation(){
-  const chosen=this.board.items.filter(i=>this.selected.has(i.id)&&i.type==='variationTable'&&!this.isLocked(i));
-  if(chosen.length!==1){notify('בחרו טבלת חקירת פונקציה אחת כדי לחשוף שלבים.');return;}
-  const item=chosen[0],r=item.spec.reveal;
-  if(!r.signs)r.signs=true;
-  else if(!r.arrows)r.arrows=true;
-  else if(!r.conclusions)r.conclusions=true;
-  else {r.signs=false;r.arrows=false;r.conclusions=false;}
   this.commit();
  }
  async insertVariation(existing=null){

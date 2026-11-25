@@ -1,7 +1,7 @@
-import {el} from './ui.js?v=20261125-blank-signs';
-import {cellStyle,changeAxis,distribute,setWidthMode,MIN_COL,MIN_ROW} from './table-model.js?v=20261125-blank-signs';
-import {selectedRange,rangeTSV,parseTSV,pasteRange} from './table-range.js?v=20261125-blank-signs';
-import {numberInput,wholeNumber,choices,labeled,widthChoices,directionChoices,tableDialog} from './table-dialog.js?v=20261125-blank-signs';
+import {el} from './ui.js?v=20261125-variation-toolbar';
+import {cellStyle,changeAxis,distribute,setWidthMode,MIN_COL,MIN_ROW} from './table-model.js?v=20261125-variation-toolbar';
+import {selectedRange,rangeTSV,parseTSV,pasteRange} from './table-range.js?v=20261125-variation-toolbar';
+import {numberInput,wholeNumber,choices,labeled,widthChoices,directionChoices,tableDialog} from './table-dialog.js?v=20261125-variation-toolbar';
 
 function colorInput(value){const n=el('input');n.type='color';n.value=value;return n;}
 function checkbox(checked){const n=el('input');n.type='checkbox';n.checked=checked;return n;}
