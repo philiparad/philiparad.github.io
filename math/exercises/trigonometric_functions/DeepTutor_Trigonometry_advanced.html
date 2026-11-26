@@ -1169,7 +1169,7 @@
                 function read(){try{const r=JSON.parse(localStorage.getItem(key)||'null');return r&&r.id===report?.completedAt&&['sending','sent','failed','unknown'].includes(r.state)?r:null;}catch{return null;}}
                 function save(state,detail=''){record={id:report.completedAt,state,detail};try{localStorage.setItem(key,JSON.stringify(record));}catch{storageWarning=true;}}
                 function paint(){const st=record?.state||'idle';const final=current===qs.length&&!!report;
-                    let text=!configured()?'שירות הדוא״ל עדיין לא הוגדר על ידי המורה. אפשר להמשיך בתרגול.':!final?'אפשר להזין שם ולבחור בשליחה אוטומטית, או לשלוח ידנית בסיום.':st==='sent'?'בקשת השליחה התקבלה בהצלחה ב־EmailJS.':st==='sending'?'שולח תוצאות למורה…':st==='failed'?'השליחה נדחתה ('+record.detail+'). אפשר לנסות שוב.':st==='unknown'?'לא ניתן לוודא אם ההודעה התקבלה. בדקו עם המורה לפני ניסיון חוזר, שעלול ליצור כפילות.':'התוצאות מוכנות לשליחה למורה.';
+                    let text=!configured()?'שירות הדוא״ל עדיין לא הוגדר על ידי המורה. אפשר להמשיך בתרגול.':!final?'אפשר להזין שם ולבחור בשליחה אוטומטית, או לשלוח ידנית בסיום.':st==='sent'?'בקשת השליחה התקבלה בהצלחה.':st==='sending'?'שולח תוצאות למורה…':st==='failed'?'השליחה נדחתה ('+record.detail+'). אפשר לנסות שוב.':st==='unknown'?'לא ניתן לוודא אם ההודעה התקבלה. בדקו עם המורה לפני ניסיון חוזר, שעלול ליצור כפילות.':'התוצאות מוכנות לשליחה למורה.';
                     if(storageWarning)text+=' לא ניתן לשמור את מצב השליחה בדפדפן.';
                     status.textContent=text;status.dataset.state=st;
                     send.hidden=!final;send.disabled=!configured()||inFlight||st==='sent'||st==='sending';
