@@ -90,6 +90,11 @@
 .choice>span:last-child{min-width:0;line-height:1.55}.choice:has(br){align-items:flex-start;font-size:17px}.choice:has(br) .letter{flex-shrink:0}@media print{.print-sheet:has(.choice br) .choice{font-size:10pt;line-height:1.25;padding:2mm}.print-sheet:has(.choice br) .lines{height:12mm}.print-sheet:has(.choice br) .choices{gap:2mm}}
 
 .email-report{margin-top:16px;background:#eff5fd;border:2px solid #b3c9e5;border-radius:12px;padding:14px;min-width:0}.email-report h3{margin:0 0 8px}.email-report label{display:block;font-size:15px;font-weight:bold}.email-report input[type=text]{margin:5px 0 8px;font-size:16px}.email-report input[type=checkbox]{width:18px;height:18px;vertical-align:middle;accent-color:#285c91}.email-report .small{margin:6px 0}.email-state{border:2px solid #b3c9e5;border-radius:8px;padding:8px;font-size:15px;overflow-wrap:anywhere;margin-top:10px}.email-state[data-state=sent]{background:#d9f7e7;border-color:#91c7a7;color:#245b3b}.email-state[data-state=failed],.email-state[data-state=unknown]{background:#fff1c5;border-color:#d7bb67;color:#634a15}.email-report button{width:100%;margin-top:8px;font-size:16px}
+/* EmailJS diagnostics: separate from quiz/report persistence. */
+.email-diagnostics{margin-top:16px;padding:12px;background:#eff5fd;border:2px solid #b3c9e5;border-radius:12px;min-width:0}
+.email-diagnostics summary{cursor:pointer;font-size:16px;font-weight:bold;color:#244a78}
+.email-diagnostics pre{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;direction:ltr;text-align:left;font:13px/1.5 monospace;background:white;border:2px solid #b3c9e5;border-radius:8px;padding:10px;max-width:100%}
+.email-diagnostics .actions button{font-size:15px;padding:6px 10px}
 </style>
     </head>
     <body>
@@ -124,6 +129,15 @@
                     <div id="emailState" class="email-state" role="status" aria-live="polite"></div>
                     <p class="small">הציון מחושב בדפדפן ואינו מאומת באופן חיצוני.</p>
                 </section></div>
+                <details id="emailDiagnostics" class="email-diagnostics">
+                    <summary>אבחון שליחת דוא״ל (EmailJS)</summary>
+                    <p class="small">המידע מוצג בדפדפן בלבד. הודעת בדיקה אינה משנה את הציון או את מצב שליחת התוצאות.</p>
+                    <p id="emailDiagnosticConfig" class="small" role="status"></p>
+                    <div class="actions"><button type="button" id="emailTest" hidden>שליחת דוא״ל לבדיקה</button><button type="button" id="emailClearLog">ניקוי יומן</button></div>
+                    <p id="emailTestHelp" class="small" hidden>הבדיקה שולחת הודעה אמיתית למורה עם נתונים פיקטיביים בלבד וצורכת בקשה אחת ממכסת EmailJS.</p>
+                    <div id="emailDiagnosticStatus" class="small" role="status" aria-live="polite"></div>
+                    <pre id="emailDiagnosticLog" aria-label="יומן אבחון">No requests recorded in this page session.</pre>
+                </details>
                 <div class="actions"><button type="button" id="restart">התחלה מחדש</button><button type="button" id="print">הדפסת שאלון</button></div>
             </aside>
         </main>
@@ -1066,6 +1080,61 @@
                 const key='DeepTutor:'+data.quiz_id+':email-delivery:v1:'+location.pathname;
                 const configured=()=>Object.values(EMAILJS_CONFIG).every(v=>typeof v==='string'&&v.trim()&&!v.startsWith('YOUR_'));
                 let report=null,record=null,inFlight=false,storageWarning=false;
+                const endpoint='https://api.emailjs.com/api/v1.0/email/send';
+                const diagnosticPanel=$('emailDiagnostics'), diagnosticLog=$('emailDiagnosticLog'), diagnosticStatus=$('emailDiagnosticStatus'), testButton=$('emailTest');
+                // URL flag reduces accidental student tests; it is not teacher authentication.
+                const testMode=new URLSearchParams(location.search).get('emailDiagnostics')==='1';
+                const logs=[]; let testInFlight=false,lastTestAt=-Infinity;
+                $('emailDiagnosticConfig').textContent=(configured()?'מזהי השירות, התבנית והמפתח הציבורי מוגדרים.':'חסר מזהה בהגדרות EmailJS.')+' בדיקה זו אינה מאמתת הרשאות או חיבור.';
+                diagnosticPanel.open=testMode; testButton.hidden=!testMode; $('emailTestHelp').hidden=!testMode;
+                function renderLog(){
+                    diagnosticLog.textContent=logs.length?logs.map(x=>JSON.stringify(x,null,2)).join('\n\n'):'No requests recorded in this page session.';
+                }
+                function addLog(entry){
+                    logs.push(entry); if(logs.length>10)logs.shift(); renderLog();
+                    if(testMode&&typeof console!=='undefined')console.info('[DeepTutor EmailJS]',entry);
+                }
+                $('emailClearLog').onclick=()=>{logs.length=0;renderLog();diagnosticStatus.textContent='';};
+                async function requestEmail(payload,kind){
+                    const started=Date.now(), controller=new AbortController();
+                    let timedOut=false;
+                    const timeout=setTimeout(()=>{timedOut=true;controller.abort();},15000);
+                    const entry={kind,endpoint,method:'POST',origin:location.origin,startedAt:new Date(started).toISOString(),onlineHint:navigator.onLine,serviceId:EMAILJS_CONFIG.service_id,templateId:EMAILJS_CONFIG.template_id,parameterNames:Object.keys(payload.template_params),httpStatus:null,httpStatusText:null,responseBody:null,error:null};
+                    diagnosticStatus.textContent='שולח בקשת '+(kind==='test'?'בדיקה':'תוצאות')+'…';
+                    let result={state:'unknown',detail:''};
+                    try{
+                        const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:controller.signal,credentials:'omit',cache:'no-store'});
+                        entry.httpStatus=response.status;entry.httpStatusText=response.statusText;
+                        try{entry.responseBody=await response.text();}catch(e){entry.error={name:e?.name||'Error',message:e?.message||String(e),phase:'response body'};}
+                        result=response.ok?{state:'sent',detail:'HTTP '+response.status}:response.status>=400&&response.status<500?{state:'failed',detail:'HTTP '+response.status}:{state:'unknown',detail:'HTTP '+response.status};
+                    }catch(e){
+                        entry.error={name:e?.name||'Error',message:e?.message||String(e),phase:'request'};
+                        result={state:'unknown',detail:timedOut?'Timeout (15s)':entry.error.name};
+                    }finally{
+                        clearTimeout(timeout);entry.timedOut=timedOut;entry.durationMs=Date.now()-started;entry.state=result.state;addLog(entry);
+                        diagnosticStatus.textContent=result.state==='sent'?'EmailJS קיבל את הבקשה; יש לאמת קבלה בתיבת הדוא״ל.':'הבקשה לא אומתה: '+(result.detail||'Unknown')+'. פרטים ביומן.';
+                        if(result.state!=='sent')diagnosticPanel.open=true;
+                    }
+                    return result;
+                }
+                function updateTestButton(){testButton.disabled=!configured()||testInFlight||inFlight;}
+                async function testEmail(){
+                    if(!testMode||!configured()||testInFlight||inFlight)return;
+                    if(Date.now()-lastTestAt<10000){diagnosticStatus.textContent='יש להמתין 10 שניות בין בדיקות.';return;}
+                    if(!confirm('לשלוח דוא״ל בדיקה אמיתי למורה עם נתונים פיקטיביים בלבד?'))return;
+                    lastTestAt=Date.now();testInFlight=true;updateTestButton();
+                    try{
+                        const items=qs.map((q,i)=>({number:i+1,topic:q.topic,max:points(q),score:points(q)}));
+                        const missed=items.find(x=>x.max===5);if(missed)missed.score=0;
+                        const sample={quizId:data.quiz_id,completedAt:new Date().toISOString(),grade:items.reduce((a,x)=>a+x.score,0),total:items.reduce((a,x)=>a+x.max,0),independent:items.length-(missed?1:0),assisted:missed?1:0,repairs:0,items};
+                        const payload=makePayload(sample,'TEST STUDENT — בדיקה בלבד');
+                        payload.template_params.subject='[TEST] DeepTutor — EmailJS diagnostics';
+                        payload.template_params.message='הודעת בדיקה בלבד — נתונים פיקטיביים.\n'+payload.template_params.message;
+                        payload.template_params.submission_id='TEST:'+payload.template_params.submission_id;
+                        await requestEmail(payload,'test');
+                    }finally{testInFlight=false;updateTestButton();}
+                }
+                testButton.onclick=testEmail;
                 const nameValue=()=>name.value.trim();
                 const validName=()=>nameValue().length>0&&nameValue().length<=80&&!/[\r\n]/.test(nameValue());
                 function read(){try{const r=JSON.parse(localStorage.getItem(key)||'null');return r&&r.id===report?.completedAt&&['sending','sent','failed','unknown'].includes(r.state)?r:null;}catch{return null;}}
@@ -1077,7 +1146,7 @@
                     send.hidden=!final;send.disabled=!configured()||inFlight||st==='sent'||st==='sending';
                     send.textContent=['failed','unknown'].includes(st)?'ניסיון שליחה חוזר':'שליחת תוצאות למורה';
                     name.disabled=inFlight||st==='sent';auto.disabled=!configured()||!!report||inFlight;
-                    $('restart').disabled=inFlight;
+                    $('restart').disabled=inFlight;updateTestButton();
                 }
                 function home(){if(panel.parentNode!==$('emailHome'))$('emailHome').append(panel);paint();}
                 function summary(){report=guard.emailSnapshot();if(!report)return;
@@ -1086,7 +1155,7 @@
                     if(configured()&&auto.checked&&validName()&&!record&&!inFlight)void deliver(false);
                 }
                 function makePayload(r,student){const rows=r.items.map(x=>`${x.number}. ${x.topic}: ${x.score}/${x.max}`).join('\n');return {...EMAILJS_CONFIG,template_params:{
-                    subject:'תוצאות תרגול טריגונומטריה – 5 יחידות',student_name:student,quiz_id:r.quizId,grade:String(r.grade),total_points:String(r.total),completed_at:r.completedAt,submission_id:r.quizId+':'+r.completedAt,independent:String(r.independent),assisted:String(r.assisted),integrity_repairs:String(r.repairs),
+                    subject:'תוצאות תרגול טריגונומטריה – 5 יחידות',name:student,time:r.completedAt,student_name:student,quiz_id:r.quizId,grade:String(r.grade),total_points:String(r.total),completed_at:r.completedAt,submission_id:r.quizId+':'+r.completedAt,independent:String(r.independent),assisted:String(r.assisted),integrity_repairs:String(r.repairs),
                     message:['שם / מזהה: '+student,'שאלון: '+r.quizId,'ציון: '+r.grade+'/'+r.total,'תאריך (UTC): '+r.completedAt,'עצמאית: '+r.independent+' | בסיוע: '+r.assisted,'אי־התאמות מקומיות שתוקנו: '+r.repairs,'פירוט ניקוד:',rows,'הציון חושב בצד הלקוח ואינו מאומת חיצונית.'].join('\n')
                 }};}
                 async function deliver(manual){
@@ -1096,14 +1165,14 @@
                     if(manual&&record?.state==='unknown'&&!confirm('ייתכן שההודעה כבר התקבלה. לשלוח שוב בכל זאת?'))return;
                     report=guard.emailSnapshot();if(!report)return;
                     inFlight=true;auto.checked=false;save('sending');paint();
-                    const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),15000);
                     try{
-                        const response=await fetch('https://api.emailjs.com/api/v1.0/email/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(makePayload(report,nameValue())),signal:controller.signal,credentials:'omit',cache:'no-store'});
-                        if(response.ok)save('sent');else if(response.status>=400&&response.status<500)save('failed','HTTP '+response.status);else save('unknown','HTTP '+response.status);
-                    }catch{save('unknown');}finally{clearTimeout(timeout);inFlight=false;paint();}
+                        const result=await requestEmail(makePayload(report,nameValue()),'report');
+                        save(result.state,result.detail);
+                    }catch(e){save('unknown',e?.name||'Error');diagnosticStatus.textContent='Unexpected diagnostic error: '+(e?.message||String(e));diagnosticPanel.open=true;}
+                    finally{inFlight=false;paint();}
                 }
                 function reset(){report=null;record=null;storageWarning=false;name.value='';auto.checked=false;home();}
-                send.onclick=()=>void deliver(true);
+                send.onclick=()=>deliver(true);
                 auto.onchange=()=>{if(auto.checked&&!validName()){auto.checked=false;status.textContent='יש להזין שם או מזהה כיתתי לפני אישור השליחה.';name.focus();}};
                 window.addEventListener('storage',e=>{if(e.key===key&&report&&!inFlight){const saved=read();if(saved){record=saved.state==='sending'?{...saved,state:'unknown'}:saved;paint();}}});
                 paint();return Object.freeze({home,summary,reset,isSending:()=>inFlight});
