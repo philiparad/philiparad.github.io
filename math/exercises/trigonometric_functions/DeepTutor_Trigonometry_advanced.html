@@ -88,6 +88,8 @@
 .integrity-status{font-size:15px;padding:9px 12px;border:2px solid #91bd9b;border-radius:10px;background:#d9f7e7;color:#245b3b;margin:10px 0}.integrity-status[data-warning="true"]{background:#fff1c5;border-color:#d7bb67;color:#634a15}.integrity-status small{display:block}.integrity-export{font-size:15px;margin-bottom:12px}
 
 .choice>span:last-child{min-width:0;line-height:1.55}.choice:has(br){align-items:flex-start;font-size:17px}.choice:has(br) .letter{flex-shrink:0}@media print{.print-sheet:has(.choice br) .choice{font-size:10pt;line-height:1.25;padding:2mm}.print-sheet:has(.choice br) .lines{height:12mm}.print-sheet:has(.choice br) .choices{gap:2mm}}
+
+.email-report{margin-top:16px;background:#eff5fd;border:2px solid #b3c9e5;border-radius:12px;padding:14px;min-width:0}.email-report h3{margin:0 0 8px}.email-report label{display:block;font-size:15px;font-weight:bold}.email-report input[type=text]{margin:5px 0 8px;font-size:16px}.email-report input[type=checkbox]{width:18px;height:18px;vertical-align:middle;accent-color:#285c91}.email-report .small{margin:6px 0}.email-state{border:2px solid #b3c9e5;border-radius:8px;padding:8px;font-size:15px;overflow-wrap:anywhere;margin-top:10px}.email-state[data-state=sent]{background:#d9f7e7;border-color:#91c7a7;color:#245b3b}.email-state[data-state=failed],.email-state[data-state=unknown]{background:#fff1c5;border-color:#d7bb67;color:#634a15}.email-report button{width:100%;margin-top:8px;font-size:16px}
 </style>
     </head>
     <body>
@@ -112,6 +114,16 @@
                 <progress id="progress" max="20" value="0" aria-label="מספר שאלות שהושלמו"></progress>
                 <div class="metrics" id="metrics"></div>
                 <nav aria-label="תוכן עניינים"><ol id="route" class="route"></ol></nav>
+                <div id="emailHome"><section id="emailReport" class="email-report" aria-labelledby="emailTitle">
+                    <h3 id="emailTitle">שליחת תוצאות למורה</h3>
+                    <p class="small">שם התלמיד, הציון ופירוט הניקוד יישלחו למורה באמצעות EmailJS. השליחה אינה חובה.</p>
+                    <label for="emailStudent">שם התלמיד / מזהה כיתתי</label>
+                    <input type="text" id="emailStudent" maxlength="80" autocomplete="off" placeholder="הקלידו שם או מזהה כיתתי">
+                    <label id="emailAutoLabel"><input type="checkbox" id="emailAuto"> אני מסכים/ה לשליחת התוצאות אוטומטית בסיום התרגול</label>
+                    <button type="button" id="emailSend" class="primary" hidden>שליחת תוצאות למורה</button>
+                    <div id="emailState" class="email-state" role="status" aria-live="polite"></div>
+                    <p class="small">הציון מחושב בדפדפן ואינו מאומת באופן חיצוני.</p>
+                </section></div>
                 <div class="actions"><button type="button" id="restart">התחלה מחדש</button><button type="button" id="print">הדפסת שאלון</button></div>
             </aside>
         </main>
@@ -922,7 +934,7 @@
             const totalScore=()=>qs.reduce((a,q,i)=>a+earned(q,states[i]),0);
             const rubricPoints=(q,i)=>Math.floor(points(q)/q.rubric.length)+(i<points(q)%q.rubric.length?1:0);
             const blank=()=>({attempts:[],hints:0,status:'unanswered',selected:null,input:'',review:false,selfScore:0,feedback:'',kind:'',revealed:false});
-            const reset=()=>{guard.reset();states=qs.map(blank);current=0;render();};
+            const reset=()=>{guard.reset();emailReport.reset();states=qs.map(blank);current=0;render();};
             function button(text,id,cls=''){return `<button type="button" id="${id}" class="${cls}">${text}</button>`;}
             function norm(v){return v.normalize('NFC').trim().replace(/−/g,'-');}
             function options(q){return q.question_type==='choice'?Object.entries(q.options):q.question_type==='concept'?[['true','נכון'],['false','לא נכון']]:[];}
@@ -945,7 +957,7 @@
             function clearBoard(){if(board){JXG.JSXGraph.freeBoard(board);board=null;}}
             function graphMarkup(q,id,controls){let text=q.visual==='circle'?(controls?'מעגל היחידה - נקודת ההתחלה מתאימה לנתוני השאלה; אפשר לשנות את הזווית.':'מעגל היחידה - הנקודה מתאימה לנתוני השאלה.'):q.visual==='both'?'כחול: סינוס. כתום מקווקו: קוסינוס (הנגזרת).':q.visual==='cos'?'גרף קוסינוס בתחום מסיבוב אפס לסיבוב שלם.':q.visual==='fast'?'גרף סינוס לאחר כפל הזווית ב־4.':'גרף סינוס בתחום מסיבוב אפס לסיבוב שלם.';return `<div class="graphwrap"><p class="small">${text}</p><div id="${id}" class="graph jxgbox" role="img" aria-label="${text}"></div>${controls?`<div class="graphcontrols">${button('איפוס','gReset')}${button('הגדלה','gIn')}${button('הקטנה','gOut')}${button('מרכוז','gCenter')}${q.visual==='circle'?`<label>זווית במעלות <input id="angle" type="range" min="0" max="360" value="${q.angle||45}"><output id="angleText">${q.angle||45}°</output></label>`:''}</div>`:''}</div>`;}
             async function typeset(root){if(window.MathJax?.startup?.promise){await MathJax.startup.promise;await MathJax.typesetPromise([root]);}}
-            async function render(focus=true){if(busy)return;busy=true;try{clearBoard();if(window.MathJax?.typesetClear)MathJax.typesetClear([stage]);side();$('work').classList.toggle('question-workspace',current<qs.length);if(current===qs.length){summary();await typeset(stage);return;}let q=qs[current],s=states[current],done=complete(s),open=q.question_type==='short_answer'||q.question_type==='written';
+            async function render(focus=true){if(busy)return;busy=true;try{emailReport.home();clearBoard();if(window.MathJax?.typesetClear)MathJax.typesetClear([stage]);side();$('work').classList.toggle('question-workspace',current<qs.length);if(current===qs.length){summary();await typeset(stage);return;}let q=qs[current],s=states[current],done=complete(s),open=q.question_type==='short_answer'||q.question_type==='written';
                 let o=options(q),choices=o.length?`<div class="choices" role="group" aria-label="אפשרויות תשובה">${o.map(([key,value],i)=>`<button type="button" class="choice" data-answer="${key}" aria-pressed="${s.selected===key}" ${done||s.review?'disabled':''}><bdi class="letter" dir="ltr">${q.question_type==='choice'?'ABCD'[i]:i+1}</bdi><span>${value}</span></button>`).join('')}</div>`: `<label class="answer-label" for="answer">${open?'כתבו את הנימוק שלכם':'כתבו תשובה'}</label>${open?'<textarea id="answer" maxlength="2000" placeholder="כתבו כאן את דרך החשיבה שלכם"></textarea>':'<input type="text" id="answer" maxlength="40" inputmode="numeric" dir="ltr" autocomplete="off">'}${open?'<p class="small">תשובה פתוחה מקבלת ניקוד לפי מחוון לבדיקה עצמית. סמנו רק רכיבים שהופיעו בתשובתכם לפני חשיפת הפתרון.</p>':''}`;
                 stage.innerHTML=`<div id="questionBody"><span class="tag">שאלה ${current+1} מתוך ${qs.length}</span> <span class="tag">${{easy:'יישום',medium:'חשיבה רב־שלבית',hard:'חקירה והנמקה'}[q.difficulty]}</span> <span class="tag points-tag">${points(q)} נקודות</span><h2 id="qTitle">${q.topic}</h2><p class="small">${data.objectives.find(o=>o.id===q.objective_id).title}</p><div class="question">${q.question}</div>${q.visual?graphMarkup(q,'activeGraph',true):''}${choices}<div id="messages" aria-live="polite"></div></div><div id="questionActions"><div class="actions">${button(open?'השוואה לפתרון':'בדיקת תשובה','check','primary')}${button('רמז נוסף','hintBtn')}${button('הצגת פתרון','reveal')}${button('ממשיכים','next','primary')}</div><p class="small">תשובה נכונה: מלוא הניקוד, גם לאחר רמז או ניסיון נוסף. הצגת פתרון ללא תשובה נכונה: 0. כל השאלות נבדקות אוטומטית.</p></div>`;
                 const input=$('answer');if(input){input.value=s.input;input.disabled=done||s.review;input.oninput=()=>{s.input=input.value;};input.onkeydown=e=>{if(e.key==='Enter'&&!open){e.preventDefault();submit();}};}
@@ -962,7 +974,7 @@
             function submit(){if(busy||current>=qs.length)return;let q=qs[current],s=states[current];if(complete(s)||s.review)return;let open=['short_answer','written'].includes(q.question_type),v=options(q).length?s.selected:s.input.trim();if(!v){s.feedback='יש לבחור או להקליד תשובה לפני בדיקה.';s.kind='hint';render(false);return;}if(open){s.attempts.push({id:s.attempts.length+1,answer:v,result:'pending_review',hints:s.hints});s.review=true;s.revealed=true;s.feedback='התשובה התקבלה להשוואה עצמית.';s.kind='hint';render(false);return;}
                 let ok=correct(q,v);s.attempts.push({id:s.attempts.length+1,answer:v,result:ok?'correct':'incorrect',hints:s.hints});if(ok){s.status=s.attempts.length===1&&s.hints===0&&!s.revealed?'independent':'assisted';s.feedback='נכון! קראו את ההסבר כדי להבין מדוע.';s.kind='good';}else{s.status='incorrect';s.feedback=q.distractor_feedback[v]||q.distractor_feedback.unknown||'בדקו שוב את העיקרון.';s.kind='bad';}render(false);
             }
-            function summary(){guard.finish();let n=states.filter(s=>s.status==='independent').length, assisted=states.filter(s=>s.status==='assisted').length,pending=states.filter(s=>s.status==='pending').length;stage.innerHTML=`<h2 id="qTitle">סיימתם את מסלול התרגול!</h2><p>השלמתם 20 שאלות. סיכום זה הוא מדד לתרגול, לא הוכחה לשליטה מלאה.</p><div class="metrics"><div class="metric"><strong>${n}</strong>נכון בניסיון ראשון ללא רמז</div><div class="metric"><strong>${assisted}</strong>השלמה בסיוע</div><div class="metric"><strong>${states.filter(s=>s.attempts.some(t=>t.result==='correct')).length}</strong>תשובות נכונות</div><div class="metric"><strong>${states.reduce((a,s)=>a+s.attempts.filter(t=>t.result==='incorrect').length,0)}</strong>ניסיונות שגויים</div></div><div class="grade-total"><strong id="guardGrade">${totalScore()} / ${totalPoints}</strong><div>ציון כולל</div></div><div id="gradeIntegrity" class="integrity-status" role="status"></div><p class="small">תשובה נכונה מזכה במלוא הניקוד גם לאחר רמז או ניסיון שגוי. חשיפת פתרון ללא תשובה נכונה מזכה ב־0. כל השאלות נבדקות אוטומטית; הציון הוא מדד לתרגול ואינו ציון מבחן מבוקר.</p><h3>פירוט הניקוד לפי שאלה</h3><table class="score-table grade-table"><thead><tr><th>שאלה</th><th>נושא</th><th>ניקוד מרבי</th><th>ניקוד שהתקבל</th><th>אופן בדיקה</th></tr></thead><tbody>${qs.map((q,i)=>`<tr><td>${i+1}</td><td>${q.topic}</td><td>${points(q)}</td><td data-guard-score="${i}">${earned(q,states[i])}</td><td>${states[i].status==='pending'?'עצמית':states[i].attempts.some(t=>t.result==='correct')?'אוטומטית':'ללא תשובה נכונה'}</td></tr>`).join('')}</tbody><tfoot><tr><th colspan="2">סה״כ</th><th>${totalPoints}</th><th id="guardTotal">${totalScore()}</th><th></th></tr></tfoot></table><h3>המלצה לחזרה ממוקדת</h3><table class="score-table"><thead><tr><th>נושא</th><th>ראיות מתרגול</th><th>המלצה</th></tr></thead><tbody>${data.objectives.map(o=>{let a=qs.map((q,i)=>q.objective_id===o.id?states[i]:null).filter(Boolean);return `<tr><td>${o.title}</td><td>${a.filter(s=>s.status==='independent').length}/${a.length} עצמאית</td><td>${a.every(s=>s.status==='independent')?'תרגול העברה נוסף':'חזרה ממוקדת'}</td></tr>`;}).join('')}</tbody></table><p class="small">לחצו על נושא במסלול כדי לחזור להסבר ולפתרון, או התחילו מחדש לתרגול עצמאי.</p>`;guard.attach();}
+            function summary(){guard.finish();let n=states.filter(s=>s.status==='independent').length, assisted=states.filter(s=>s.status==='assisted').length,pending=states.filter(s=>s.status==='pending').length;stage.innerHTML=`<h2 id="qTitle">סיימתם את מסלול התרגול!</h2><p>השלמתם 20 שאלות. סיכום זה הוא מדד לתרגול, לא הוכחה לשליטה מלאה.</p><div class="metrics"><div class="metric"><strong>${n}</strong>נכון בניסיון ראשון ללא רמז</div><div class="metric"><strong>${assisted}</strong>השלמה בסיוע</div><div class="metric"><strong>${states.filter(s=>s.attempts.some(t=>t.result==='correct')).length}</strong>תשובות נכונות</div><div class="metric"><strong>${states.reduce((a,s)=>a+s.attempts.filter(t=>t.result==='incorrect').length,0)}</strong>ניסיונות שגויים</div></div><div class="grade-total"><strong id="guardGrade">${totalScore()} / ${totalPoints}</strong><div>ציון כולל</div></div><div id="gradeIntegrity" class="integrity-status" role="status"></div><p class="small">תשובה נכונה מזכה במלוא הניקוד גם לאחר רמז או ניסיון שגוי. חשיפת פתרון ללא תשובה נכונה מזכה ב־0. כל השאלות נבדקות אוטומטית; הציון הוא מדד לתרגול ואינו ציון מבחן מבוקר.</p><h3>פירוט הניקוד לפי שאלה</h3><table class="score-table grade-table"><thead><tr><th>שאלה</th><th>נושא</th><th>ניקוד מרבי</th><th>ניקוד שהתקבל</th><th>אופן בדיקה</th></tr></thead><tbody>${qs.map((q,i)=>`<tr><td>${i+1}</td><td>${q.topic}</td><td>${points(q)}</td><td data-guard-score="${i}">${earned(q,states[i])}</td><td>${states[i].status==='pending'?'עצמית':states[i].attempts.some(t=>t.result==='correct')?'אוטומטית':'ללא תשובה נכונה'}</td></tr>`).join('')}</tbody><tfoot><tr><th colspan="2">סה״כ</th><th>${totalPoints}</th><th id="guardTotal">${totalScore()}</th><th></th></tr></tfoot></table><h3>המלצה לחזרה ממוקדת</h3><table class="score-table"><thead><tr><th>נושא</th><th>ראיות מתרגול</th><th>המלצה</th></tr></thead><tbody>${data.objectives.map(o=>{let a=qs.map((q,i)=>q.objective_id===o.id?states[i]:null).filter(Boolean);return `<tr><td>${o.title}</td><td>${a.filter(s=>s.status==='independent').length}/${a.length} עצמאית</td><td>${a.every(s=>s.status==='independent')?'תרגול העברה נוסף':'חזרה ממוקדת'}</td></tr>`;}).join('')}</tbody></table><p class="small">לחצו על נושא במסלול כדי לחזור להסבר ולפתרון, או התחילו מחדש לתרגול עצמאי.</p>`;guard.attach();emailReport.summary();}
             async function printQuiz(){guard.verify();if(busy||printing)return;printing=true;$('print').disabled=true;try{let a=$('printArea');if(window.MathJax?.typesetClear)MathJax.typesetClear([a]);printBoards.forEach(b=>JXG.JSXGraph.freeBoard(b));printBoards=[];a.innerHTML=qs.map((q,i)=>`<section class="print-sheet"><p class="small">פונקציות טריגונומטריות | שאלון תלמיד | טיוטה לבקרה</p><h2>שאלה ${i+1} - ${q.topic} (${points(q)} נקודות)</h2><p class="question">${q.question}</p>${q.visual?graphMarkup(q,'pg'+i,false):''}${options(q).length?`<div class="choices">${options(q).map(([k,v],j)=>`<div class="choice"><bdi dir="ltr">${q.question_type==='choice'?'ABCD'[j]:j+1}</bdi> ${v}</div>`).join('')}</div>`:''}<h3>מקום לתשובה ולדרך פתרון</h3><div class="lines"></div></section>`).join('');a.style.cssText='display:block;position:absolute;left:-10000px;top:0;width:182mm';if(window.JXG)qs.forEach((q,i)=>{if(q.visual)printBoards.push(makeBoard('pg'+i,q.visual,false,q.angle??45));});await typeset(a);a.style.cssText='';window.print();}catch(e){console.error(e);alert('לא ניתן להכין את ההדפסה.');}finally{printing=false;$('print').disabled=false;}}
 
             // Client-side consistency deterrent, not a security boundary.
@@ -1039,10 +1051,65 @@
                 function reset(){generation++;snapshot=null;expected=null;repairs=0;log=[];gradeBox=gradeTable=statusBox=exportButton=null;try{localStorage.removeItem(key);}catch{} }
                 observer=new MutationObserver(()=>{if(current===qs.length&&!busy)verify();});observer.observe(stage,{childList:true,characterData:true,subtree:true,attributes:true});
                 setInterval(verify,500);window.addEventListener('focus',verify);window.addEventListener('storage',verify);window.addEventListener('beforeprint',verify);document.addEventListener('visibilitychange',()=>{if(!document.hidden)verify();});
-                return Object.freeze({finish,attach:attachSummary,verify,restore,reset});
+                function emailSnapshot(){verify();if(!snapshot)return null;return {quizId:data.quiz_id,completedAt:snapshot.completedAt,grade:snapshot.grade,total:totalPoints,independent:snapshot.states.filter(s=>s.status==='independent').length,assisted:snapshot.states.filter(s=>s.status==='assisted').length,repairs,items:qs.map((q,i)=>({number:i+1,topic:q.topic,score:snapshot.scores[i],max:points(q)}))};}
+                return Object.freeze({finish,attach:attachSummary,verify,restore,reset,emailSnapshot});
             })();
 
-            $('restart').onclick=()=>{if(!busy&&confirm('לאפס את כל התשובות וההתקדמות?'))reset();};$('print').onclick=printQuiz;
+            // Teacher setup: fill these PUBLIC identifiers only. The fixed recipient is in EmailJS.
+            const EMAILJS_CONFIG=Object.freeze({
+                service_id:'deeptutor_service',
+                template_id:'deeptutor_results',
+                user_id:'-GuF9CP7N-a-Axocb'
+            });
+            const emailReport=(()=>{
+                const panel=$('emailReport'),name=$('emailStudent'),auto=$('emailAuto'),send=$('emailSend'),status=$('emailState');
+                const key='DeepTutor:'+data.quiz_id+':email-delivery:v1:'+location.pathname;
+                const configured=()=>Object.values(EMAILJS_CONFIG).every(v=>typeof v==='string'&&v.trim()&&!v.startsWith('YOUR_'));
+                let report=null,record=null,inFlight=false,storageWarning=false;
+                const nameValue=()=>name.value.trim();
+                const validName=()=>nameValue().length>0&&nameValue().length<=80&&!/[\r\n]/.test(nameValue());
+                function read(){try{const r=JSON.parse(localStorage.getItem(key)||'null');return r&&r.id===report?.completedAt&&['sending','sent','failed','unknown'].includes(r.state)?r:null;}catch{return null;}}
+                function save(state,detail=''){record={id:report.completedAt,state,detail};try{localStorage.setItem(key,JSON.stringify(record));}catch{storageWarning=true;}}
+                function paint(){const st=record?.state||'idle';const final=current===qs.length&&!!report;
+                    let text=!configured()?'שירות הדוא״ל עדיין לא הוגדר על ידי המורה. אפשר להמשיך בתרגול.':!final?'אפשר להזין שם ולבחור בשליחה אוטומטית, או לשלוח ידנית בסיום.':st==='sent'?'בקשת השליחה התקבלה בהצלחה ב־EmailJS.':st==='sending'?'שולח תוצאות למורה…':st==='failed'?'השליחה נדחתה ('+record.detail+'). אפשר לנסות שוב.':st==='unknown'?'לא ניתן לוודא אם ההודעה התקבלה. בדקו עם המורה לפני ניסיון חוזר, שעלול ליצור כפילות.':'התוצאות מוכנות לשליחה למורה.';
+                    if(storageWarning)text+=' לא ניתן לשמור את מצב השליחה בדפדפן.';
+                    status.textContent=text;status.dataset.state=st;
+                    send.hidden=!final;send.disabled=!configured()||inFlight||st==='sent'||st==='sending';
+                    send.textContent=['failed','unknown'].includes(st)?'ניסיון שליחה חוזר':'שליחת תוצאות למורה';
+                    name.disabled=inFlight||st==='sent';auto.disabled=!configured()||!!report||inFlight;
+                    $('restart').disabled=inFlight;
+                }
+                function home(){if(panel.parentNode!==$('emailHome'))$('emailHome').append(panel);paint();}
+                function summary(){report=guard.emailSnapshot();if(!report)return;
+                    if(!inFlight){const saved=read();if(saved&&saved.state==='sending'){record=saved;save('unknown');}else if(saved)record=saved;else if(record?.id!==report.completedAt)record=null;}
+                    stage.querySelector('.grade-total').after(panel);paint();
+                    if(configured()&&auto.checked&&validName()&&!record&&!inFlight)void deliver(false);
+                }
+                function makePayload(r,student){const rows=r.items.map(x=>`${x.number}. ${x.topic}: ${x.score}/${x.max}`).join('\n');return {...EMAILJS_CONFIG,template_params:{
+                    subject:'תוצאות תרגול טריגונומטריה – 5 יחידות',student_name:student,quiz_id:r.quizId,grade:String(r.grade),total_points:String(r.total),completed_at:r.completedAt,submission_id:r.quizId+':'+r.completedAt,independent:String(r.independent),assisted:String(r.assisted),integrity_repairs:String(r.repairs),
+                    message:['שם / מזהה: '+student,'שאלון: '+r.quizId,'ציון: '+r.grade+'/'+r.total,'תאריך (UTC): '+r.completedAt,'עצמאית: '+r.independent+' | בסיוע: '+r.assisted,'אי־התאמות מקומיות שתוקנו: '+r.repairs,'פירוט ניקוד:',rows,'הציון חושב בצד הלקוח ואינו מאומת חיצונית.'].join('\n')
+                }};}
+                async function deliver(manual){
+                    if(!configured()||current!==qs.length||!report||inFlight||record?.state==='sent'||record?.state==='sending')return;
+                    if(!validName()){if(manual){status.textContent='יש להזין שם או מזהה כיתתי לפני השליחה.';name.focus();}return;}
+                    if(!manual&&record)return;
+                    if(manual&&record?.state==='unknown'&&!confirm('ייתכן שההודעה כבר התקבלה. לשלוח שוב בכל זאת?'))return;
+                    report=guard.emailSnapshot();if(!report)return;
+                    inFlight=true;auto.checked=false;save('sending');paint();
+                    const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),15000);
+                    try{
+                        const response=await fetch('https://api.emailjs.com/api/v1.0/email/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(makePayload(report,nameValue())),signal:controller.signal,credentials:'omit',cache:'no-store'});
+                        if(response.ok)save('sent');else if(response.status>=400&&response.status<500)save('failed','HTTP '+response.status);else save('unknown','HTTP '+response.status);
+                    }catch{save('unknown');}finally{clearTimeout(timeout);inFlight=false;paint();}
+                }
+                function reset(){report=null;record=null;storageWarning=false;name.value='';auto.checked=false;home();}
+                send.onclick=()=>void deliver(true);
+                auto.onchange=()=>{if(auto.checked&&!validName()){auto.checked=false;status.textContent='יש להזין שם או מזהה כיתתי לפני אישור השליחה.';name.focus();}};
+                window.addEventListener('storage',e=>{if(e.key===key&&report&&!inFlight){const saved=read();if(saved){record=saved.state==='sending'?{...saved,state:'unknown'}:saved;paint();}}});
+                paint();return Object.freeze({home,summary,reset,isSending:()=>inFlight});
+            })();
+
+            $('restart').onclick=()=>{if(!busy&&!emailReport.isSending()&&confirm('לאפס את כל התשובות וההתקדמות?'))reset();};$('print').onclick=printQuiz;
             window.addEventListener('DOMContentLoaded',async()=>{if(!window.MathJax?.startup||!window.JXG){$('libStatus').hidden=false;$('libStatus').textContent='ספריות התצוגה לא נטענו. נוסחאות או גרפים עלולים להיות חסרים. בדקו את החיבור.';}if(await guard.restore()){current=qs.length;render();}else{states=qs.map(blank);current=0;render();}});
             })();
         </script>
