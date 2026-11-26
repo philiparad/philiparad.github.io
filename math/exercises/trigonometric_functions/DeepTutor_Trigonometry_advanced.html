@@ -91,8 +91,16 @@
 
 .email-report{margin-top:16px;background:#eff5fd;border:2px solid #b3c9e5;border-radius:12px;padding:14px;min-width:0}.email-report h3{margin:0 0 8px}.email-report label{display:block;font-size:15px;font-weight:bold}.email-report input[type=text]{margin:5px 0 8px;font-size:16px}.email-report input[type=checkbox]{width:18px;height:18px;vertical-align:middle;accent-color:#285c91}.email-report .small{margin:6px 0}.email-state{border:2px solid #b3c9e5;border-radius:8px;padding:8px;font-size:15px;overflow-wrap:anywhere;margin-top:10px}.email-state[data-state=sent]{background:#d9f7e7;border-color:#91c7a7;color:#245b3b}.email-state[data-state=failed],.email-state[data-state=unknown]{background:#fff1c5;border-color:#d7bb67;color:#634a15}.email-report button{width:100%;margin-top:8px;font-size:16px}
 /* EmailJS diagnostics: separate from quiz/report persistence. */
-.email-diagnostics{margin-top:16px;padding:12px;background:#eff5fd;border:2px solid #b3c9e5;border-radius:12px;min-width:0}
-.email-diagnostics summary{cursor:pointer;font-size:16px;font-weight:bold;color:#244a78}
+/* Compact diagnostics launcher and native modal. */
+#emailDiagnosticOpen,#emailDiagnosticClose{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:36px;height:36px;min-width:36px;padding:0;border:2px solid #b3c9e5;border-radius:9px;background:#eaf1fa;color:#244a78;line-height:1;position:relative}
+#emailDiagnosticOpen svg,#emailDiagnosticClose svg{width:20px;height:20px;display:block;pointer-events:none}
+#emailDiagnosticOpen[data-error="true"]::after{content:"";position:absolute;top:2px;right:2px;width:8px;height:8px;border:1px solid white;border-radius:50%;background:#bd6a28}
+#emailDiagnosticOpen:focus-visible,#emailDiagnosticClose:focus-visible{outline:2px solid #2463a5;outline-offset:2px}
+.email-diagnostics{position:fixed;inset:0;margin:auto;width:min(640px,calc(100% - 28px));max-width:calc(100% - 28px);max-height:calc(100% - 28px);max-height:calc(100dvh - 28px);overflow:auto;padding:18px;background:#eff5fd;color:#20324a;border:2px solid #b3c9e5;border-radius:14px;box-shadow:0 12px 42px #17375c33;min-width:0;direction:rtl;text-align:right}
+.email-diagnostics::backdrop{background:rgba(23,55,92,.42)}
+.email-diagnostics .diagnostic-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.email-diagnostics .diagnostic-heading h3{margin:0;font-size:19px;color:#244a78}
+@media print{#emailDiagnosticOpen,#emailDiagnostics{display:none!important}}
 .email-diagnostics pre{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;direction:ltr;text-align:left;font:13px/1.5 monospace;background:white;border:2px solid #b3c9e5;border-radius:8px;padding:10px;max-width:100%}
 .email-diagnostics .actions button{font-size:15px;padding:6px 10px}
 </style>
@@ -129,19 +137,22 @@
                     <div id="emailState" class="email-state" role="status" aria-live="polite"></div>
                     <p class="small">הציון מחושב בדפדפן ואינו מאומת באופן חיצוני.</p>
                 </section></div>
-                <details id="emailDiagnostics" class="email-diagnostics">
-                    <summary>אבחון שליחת דוא״ל (EmailJS)</summary>
+                <div class="actions"><button type="button" id="restart">התחלה מחדש</button><button type="button" id="print">הדפסת שאלון</button><button type="button" id="emailDiagnosticOpen" title="אבחון שליחת דוא״ל (EmailJS)" aria-label="אבחון שליחת דוא״ל (EmailJS)" aria-haspopup="dialog" aria-controls="emailDiagnostics" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="2.5" y="4" width="19" height="15" rx="3"/><path d="m3 6 9 7 9-7M12 15.5v.1"/></svg></button></div>
+            </aside>
+        </main>
+        
+        <dialog id="emailDiagnostics" class="email-diagnostics" aria-labelledby="emailDiagnosticTitle">
+            <div class="diagnostic-heading">
+                <h3 id="emailDiagnosticTitle">אבחון שליחת דוא״ל (EmailJS)</h3>
+                <button type="button" id="emailDiagnosticClose" title="סגירה" aria-label="סגירה" autofocus><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+            </div>
                     <p class="small">המידע מוצג בדפדפן בלבד. הודעת בדיקה אינה משנה את הציון או את מצב שליחת התוצאות.</p>
                     <p id="emailDiagnosticConfig" class="small" role="status"></p>
                     <div class="actions"><button type="button" id="emailTest" hidden>שליחת דוא״ל לבדיקה</button><button type="button" id="emailClearLog">ניקוי יומן</button></div>
                     <p id="emailTestHelp" class="small" hidden>הבדיקה שולחת הודעה אמיתית למורה עם נתונים פיקטיביים בלבד וצורכת בקשה אחת ממכסת EmailJS.</p>
                     <div id="emailDiagnosticStatus" class="small" role="status" aria-live="polite"></div>
                     <pre id="emailDiagnosticLog" aria-label="יומן אבחון">No requests recorded in this page session.</pre>
-                </details>
-                <div class="actions"><button type="button" id="restart">התחלה מחדש</button><button type="button" id="print">הדפסת שאלון</button></div>
-            </aside>
-        </main>
-        
+        </dialog>
         <div id="printArea" class="print-only" aria-hidden="true"></div>
         <script id="quiz-data" type="application/json">{
   "schema_version": "2.0",
@@ -1086,7 +1097,25 @@
                 const testMode=new URLSearchParams(location.search).get('emailDiagnostics')==='1';
                 const logs=[]; let testInFlight=false,lastTestAt=-Infinity;
                 $('emailDiagnosticConfig').textContent=(configured()?'מזהי השירות, התבנית והמפתח הציבורי מוגדרים.':'חסר מזהה בהגדרות EmailJS.')+' בדיקה זו אינה מאמתת הרשאות או חיבור.';
-                diagnosticPanel.open=testMode; testButton.hidden=!testMode; $('emailTestHelp').hidden=!testMode;
+                const diagnosticOpen=$('emailDiagnosticOpen'), diagnosticClose=$('emailDiagnosticClose');
+                function openDiagnostics(){
+                    if(!diagnosticPanel.open)diagnosticPanel.showModal();
+                    diagnosticOpen.setAttribute('aria-expanded','true');
+                }
+                function closeDiagnostics(){if(diagnosticPanel.open)diagnosticPanel.close();}
+                diagnosticOpen.onclick=openDiagnostics;
+                diagnosticClose.onclick=closeDiagnostics;
+                diagnosticPanel.addEventListener('close',()=>{diagnosticOpen.setAttribute('aria-expanded','false');diagnosticOpen.focus();});
+                diagnosticPanel.addEventListener('click',event=>{
+                    if(event.target!==diagnosticPanel)return;
+                    const r=diagnosticPanel.getBoundingClientRect();
+                    if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)closeDiagnostics();
+                });
+                function diagnosticFailure(){
+                    diagnosticOpen.dataset.error='true';
+                    if(testMode)openDiagnostics();
+                }
+                testButton.hidden=!testMode; $('emailTestHelp').hidden=!testMode;
                 function renderLog(){
                     diagnosticLog.textContent=logs.length?logs.map(x=>JSON.stringify(x,null,2)).join('\n\n'):'No requests recorded in this page session.';
                 }
@@ -1094,7 +1123,7 @@
                     logs.push(entry); if(logs.length>10)logs.shift(); renderLog();
                     if(testMode&&typeof console!=='undefined')console.info('[DeepTutor EmailJS]',entry);
                 }
-                $('emailClearLog').onclick=()=>{logs.length=0;renderLog();diagnosticStatus.textContent='';};
+                $('emailClearLog').onclick=()=>{logs.length=0;renderLog();diagnosticStatus.textContent='';delete diagnosticOpen.dataset.error;};
                 async function requestEmail(payload,kind){
                     const started=Date.now(), controller=new AbortController();
                     let timedOut=false;
@@ -1113,7 +1142,7 @@
                     }finally{
                         clearTimeout(timeout);entry.timedOut=timedOut;entry.durationMs=Date.now()-started;entry.state=result.state;addLog(entry);
                         diagnosticStatus.textContent=result.state==='sent'?'EmailJS קיבל את הבקשה; יש לאמת קבלה בתיבת הדוא״ל.':'הבקשה לא אומתה: '+(result.detail||'Unknown')+'. פרטים ביומן.';
-                        if(result.state!=='sent')diagnosticPanel.open=true;
+                        if(result.state!=='sent')diagnosticFailure();else delete diagnosticOpen.dataset.error;
                     }
                     return result;
                 }
@@ -1168,7 +1197,7 @@
                     try{
                         const result=await requestEmail(makePayload(report,nameValue()),'report');
                         save(result.state,result.detail);
-                    }catch(e){save('unknown',e?.name||'Error');diagnosticStatus.textContent='Unexpected diagnostic error: '+(e?.message||String(e));diagnosticPanel.open=true;}
+                    }catch(e){save('unknown',e?.name||'Error');diagnosticStatus.textContent='Unexpected diagnostic error: '+(e?.message||String(e));diagnosticFailure();}
                     finally{inFlight=false;paint();}
                 }
                 function reset(){report=null;record=null;storageWarning=false;name.value='';auto.checked=false;home();}
